@@ -26,4 +26,4 @@
 
 - Do not document internal routes (`/api/internal/**`), worker callbacks, admin top-up tools, providers, or margins
 - Do not document endpoints that are not usable end to end
-- Never write per-second rates or example totals; link to https://www.creatok.ai/app/api-platform/pricing
+- Never write per-second rates or example totals; link to https://www.creatok.ai/app/api-platform/pricing. When the public API landing page with synced prices ships, point every pricing link there instead

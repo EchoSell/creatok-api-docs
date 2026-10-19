@@ -17,7 +17,7 @@ Public developer documentation for the CreatOK API, built with [Mintlify](https:
 curl -fsS https://api.creatok.ai/v1/openapi.json | jq . > api-reference/openapi.json
 ```
 
-Model limits in `guides/video-models.mdx` mirror the model settings in the app repository. Do not publish prices here; link to the [pricing page](https://www.creatok.ai/app/api-platform/pricing) in the API console instead.
+Model limits in `guides/video-models.mdx` mirror the model settings in the app repository. Do not publish prices here; link to the [pricing page](https://www.creatok.ai/app/api-platform/pricing) in the API console instead. When the public API landing page with synced prices ships, point the pricing links in `quickstart.mdx` and `guides/video-models.mdx` there.
 
 ## Local preview
 
