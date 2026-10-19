@@ -1,6 +1,6 @@
 ---
-title: "Video models and pricing"
-description: "Supported Seedance models, input fields, limits, and per-second prices."
+title: "Video models"
+description: "Supported Seedance models, input fields, limits, and how pricing works."
 ---
 
 Select a model with the `model` field of `POST /videos/generation`. All models currently support **text-to-video**.
@@ -42,20 +42,11 @@ Any other field returns `400 invalid_parameter`. The defaults are the cheapest o
 
 ## Pricing
 
-You pay per second of output video. The price depends on the model and resolution:
+You pay per second of output video. The rate depends on the model and resolution:
 
-**Cost = price per second × `seconds`**
+**Cost = rate per second × `seconds`**
 
-| Model | 480p | 720p | 1080p | 4k |
-| --- | --- | --- | --- | --- |
-| `seedance-2.5` | $0.095 | $0.206 | $0.511 | — |
-| `seedance-2` | $0.062 | $0.135 | $0.338 | $0.690 |
-| `seedance-2-fast` | $0.037 | $0.080 | — | — |
-| `seedance-2-mini` | $0.019 | $0.042 | — | — |
-
-Prices are in USD per second. For example, an 8-second 720p video with `seedance-2.5` costs 8 × $0.206 = $1.648.
-
-The [API console](https://www.creatok.ai/app/api-platform/pricing) always shows the current prices. Each job keeps the price that applied when it was accepted.
+See current rates on the [pricing page](https://www.creatok.ai/app/api-platform/pricing) in the API console. Each job keeps the rate that applied when it was accepted, and `cost.amount_usd` on the job shows the exact charge.
 
 ## Capping the cost
 

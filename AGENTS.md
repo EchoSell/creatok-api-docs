@@ -26,4 +26,4 @@
 
 - Do not document internal routes (`/api/internal/**`), worker callbacks, admin top-up tools, providers, or margins
 - Do not document endpoints that are not usable end to end
-- Prices must match `lib/api-platform/pricing-config.ts` in the app repository
+- Never write per-second rates or example totals; link to https://www.creatok.ai/app/api-platform/pricing
