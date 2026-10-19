@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "linden",
+  "theme": "mint",
   "name": "CreatOK API",
   "description": "Generate AI videos with Seedance models through the CreatOK API.",
   "colors": {
