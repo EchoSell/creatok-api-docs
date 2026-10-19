@@ -1,0 +1,62 @@
+---
+title: "Video models and pricing"
+description: "Supported Seedance models, input fields, limits, and per-second prices."
+---
+
+Select a model with the `model` field of `POST /videos/generation`. All models currently support **text-to-video**.
+
+## Models
+
+| Model | Resolutions | Duration (seconds) |
+| --- | --- | --- |
+| `seedance-2.5` | `480p`, `720p`, `1080p` | 4–30 |
+| `seedance-2` | `480p`, `720p`, `1080p`, `4k` | 4–15 |
+| `seedance-2-fast` | `480p`, `720p` | 4–15 |
+| `seedance-2-mini` | `480p`, `720p` | 4–15 |
+
+## Input fields
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `prompt` | string | — | **Required.** What the video shows. |
+| `seconds` | integer | `4` | Video duration. Must be within the model's range. |
+| `definition` | string | `480p` | Output resolution. Must be supported by the model. |
+| `orientation` | string | `9:16` | Aspect ratio: `21:9`, `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, or `auto`. |
+| `watermark` | boolean | — | Whether to add a watermark. |
+| `seed` | string | — | Seed for more repeatable results. |
+
+Any other field returns `400 invalid_parameter`. The defaults are the cheapest options, so set `seconds` and `definition` explicitly when you need more.
+
+```json
+{
+  "model": "seedance-2.5",
+  "input": {
+    "prompt": "A product shot of a ceramic mug rotating on a marble table",
+    "seconds": 8,
+    "definition": "720p",
+    "orientation": "9:16"
+  },
+  "max_cost_usd": "2.00"
+}
+```
+
+## Pricing
+
+You pay per second of output video. The price depends on the model and resolution:
+
+**Cost = price per second × `seconds`**
+
+| Model | 480p | 720p | 1080p | 4k |
+| --- | --- | --- | --- | --- |
+| `seedance-2.5` | $0.095 | $0.206 | $0.511 | — |
+| `seedance-2` | $0.062 | $0.135 | $0.338 | $0.690 |
+| `seedance-2-fast` | $0.037 | $0.080 | — | — |
+| `seedance-2-mini` | $0.019 | $0.042 | — | — |
+
+Prices are in USD per second. For example, an 8-second 720p video with `seedance-2.5` costs 8 × $0.206 = $1.648.
+
+The [API console](https://www.creatok.ai/app/api-platform/pricing) always shows the current prices. Each job keeps the price that applied when it was accepted.
+
+## Capping the cost
+
+Set `max_cost_usd` to the most you are willing to pay for a job, as a decimal string with up to six decimal places. If the job would cost more, the request fails with `400 max_cost_exceeded` and you are not charged. This protects you from unexpected charges if prices change.

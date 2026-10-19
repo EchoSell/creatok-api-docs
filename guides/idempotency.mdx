@@ -1,0 +1,30 @@
+---
+title: "Idempotency"
+description: "Retry submissions safely without creating duplicate jobs."
+---
+
+`POST /videos/generation` requires an `Idempotency-Key` header of up to 255 characters. Use a fresh UUID for every new job.
+
+```bash
+Idempotency-Key: 6f1c1a6e-3c1d-4b8e-9a54-1f7f2e0b9c11
+```
+
+## How keys behave
+
+Keys are unique within your workspace and never expire.
+
+| Request | Result |
+| --- | --- |
+| New key | A new job is created and charged. |
+| Same key, identical body | The original job is returned. You are not charged again. |
+| Same key, different body | `409` with `idempotency_key_reused`. |
+
+## Retrying safely
+
+If a request times out or returns `500`, retry with the **same key and the exact same body**. You get the job that was created, or a new one if the first attempt never reached CreatOK.
+
+To submit a new job after a failure, such as a job that failed with `model_busy`, use a **new** key. Reusing the key returns the same failed job.
+
+<Tip>
+  Store the idempotency key with your own record before you send the request. Then a crash between sending and saving the job ID cannot create a duplicate job.
+</Tip>

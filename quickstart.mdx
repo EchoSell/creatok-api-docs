@@ -1,47 +1,144 @@
 ---
 title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+description: "Generate your first video with the CreatOK API."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+This guide submits a 4-second 480p video with `seedance-2-mini`, polls the job, and downloads the result. The job costs $0.076.
 
 ## Prerequisites
 
-Before you begin, you must have:
-
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+- A CreatOK workspace with the API wallet enabled and a positive balance. Contact [support@creatok.ai](mailto:support@creatok.ai) to enable the wallet and top up.
+- An organization API key that starts with `cok_`.
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Create an API key">
+    Open **API Platform → API Keys** in the [API console](https://www.creatok.ai/app/api-platform/api-keys) and create a key. The full key is shown only once, so store it in your secret manager.
 
     ```bash
-    npm install your-package
+    export CREATOK_API_KEY="cok_..."
     ```
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
-
+  <Step title="Check your balance">
     ```bash
-    your-cli init
+    curl https://api.creatok.ai/v1/account \
+      -H "Authorization: Bearer $CREATOK_API_KEY"
+    ```
+
+    ```json
+    {
+      "object": "account",
+      "balance": { "amount_usd": "10.000000", "enabled": true },
+      "concurrency": { "active": 0, "limit": 3 }
+    }
     ```
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
+  <Step title="Submit a generation job">
+    Generate a new `Idempotency-Key` for each new job. Reuse it only when you retry the same request.
 
     ```bash
-    your-cli start
+    curl https://api.creatok.ai/v1/videos/generation \
+      -H "Authorization: Bearer $CREATOK_API_KEY" \
+      -H "Content-Type: application/json" \
+      -H "Idempotency-Key: $(uuidgen)" \
+      -d '{
+        "model": "seedance-2-mini",
+        "input": {
+          "prompt": "A quiet lake at sunrise, gentle camera movement",
+          "seconds": 4,
+          "definition": "480p",
+          "orientation": "16:9"
+        },
+        "max_cost_usd": "0.10"
+      }'
     ```
+
+    The API responds with `202 Accepted` and a job:
+
+    ```json
+    {
+      "id": "job_3f9c2a...",
+      "object": "job",
+      "capability": "video.generation",
+      "model": "seedance-2-mini",
+      "status": "queued",
+      "output": { "files": [] },
+      "cost": { "amount_usd": "0.076000", "refunded_usd": "0.000000" },
+      "error": null,
+      "created_at": "2026-10-19T08:00:00.000Z",
+      "completed_at": null,
+      "expires_at": null
+    }
+    ```
+  </Step>
+  <Step title="Poll the job">
+    While the job is `queued` or `running`, the response includes a `Retry-After` header. Wait that many seconds before the next request.
+
+    ```bash
+    curl https://api.creatok.ai/v1/jobs/job_3f9c2a... \
+      -H "Authorization: Bearer $CREATOK_API_KEY"
+    ```
+  </Step>
+  <Step title="Download the video">
+    When `status` is `succeeded`, download each URL in `output.files`.
+
+    ```json
+    {
+      "status": "succeeded",
+      "output": { "files": [{ "type": "video", "url": "https://..." }] },
+      "expires_at": "2026-10-21T08:03:00.000Z"
+    }
+    ```
+
+    <Warning>
+      Output URLs expire after about one hour. Fetch the job again for a fresh URL. Outputs are deleted 48 hours after the job completes, so copy them to your own storage.
+    </Warning>
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+## Complete example
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+```javascript Node.js
+import { randomUUID } from "node:crypto";
+import { writeFile } from "node:fs/promises";
+
+const baseUrl = "https://api.creatok.ai/v1";
+const headers = { Authorization: `Bearer ${process.env.CREATOK_API_KEY}` };
+
+async function call(path, init = {}) {
+  const res = await fetch(baseUrl + path, { ...init, headers: { ...headers, ...init.headers } });
+  const body = await res.json();
+  if (!res.ok) throw new Error(`${body.error.code}: ${body.error.message} (${body.error.request_id})`);
+  return { body, retryAfter: Number(res.headers.get("retry-after")) || 10 };
+}
+
+let { body: job, retryAfter } = await call("/videos/generation", {
+  method: "POST",
+  headers: { "Content-Type": "application/json", "Idempotency-Key": randomUUID() },
+  body: JSON.stringify({
+    model: "seedance-2-mini",
+    input: { prompt: "A quiet lake at sunrise", seconds: 4, definition: "480p", orientation: "16:9" },
+    max_cost_usd: "0.10",
+  }),
+});
+
+while (job.status === "queued" || job.status === "running") {
+  await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
+  ({ body: job, retryAfter } = await call(`/jobs/${job.id}`));
+}
+
+if (job.status !== "succeeded") throw new Error(`Job ${job.status}: ${job.error?.code}`);
+
+const video = await fetch(job.output.files[0].url);
+await writeFile("output.mp4", Buffer.from(await video.arrayBuffer()));
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Models and pricing" icon="film" href="/guides/video-models">
+    Choose a model, resolution, and duration.
+  </Card>
+  <Card title="Errors" icon="triangle-exclamation" href="/guides/errors">
+    Handle HTTP errors and failed jobs.
+  </Card>
+</CardGroup>

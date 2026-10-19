@@ -1,0 +1,38 @@
+---
+title: "Authentication"
+description: "Authenticate requests with an organization API key."
+---
+
+Every request except `GET /openapi.json` requires an organization API key in the `Authorization` header:
+
+```bash
+Authorization: Bearer cok_...
+```
+
+## Organization API keys
+
+- Keys belong to a CreatOK workspace, not to a person. Jobs, balance, and concurrency are shared by every key in the workspace.
+- Organization keys start with `cok_`. Personal CLI and MCP keys (`ok_`) cannot call the API.
+- Any member of the workspace can create, rename, rotate, and revoke keys in the [API console](https://www.creatok.ai/app/api-platform/api-keys).
+- The full key is shown only once, when you create or rotate it.
+
+## Rotating and revoking keys
+
+Rotating a key revokes the old key immediately and creates a new key with the same name. Update your deployments before you rotate, or create a second key, switch to it, and then revoke the first one.
+
+A request with a missing, malformed, or revoked key returns `401`:
+
+```json
+{
+  "error": {
+    "type": "authentication_error",
+    "code": "invalid_api_key",
+    "message": "A valid organization API key is required",
+    "request_id": "req_..."
+  }
+}
+```
+
+## Keep keys on the server
+
+The API does not return CORS headers. Call it only from your backend, and load the key from an environment variable or secret manager. Never commit a key to source control or embed it in a web or mobile app.

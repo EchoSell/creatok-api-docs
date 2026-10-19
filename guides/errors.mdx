@@ -1,0 +1,67 @@
+---
+title: "Errors"
+description: "Handle HTTP errors and failed jobs."
+---
+
+The API reports problems in two ways:
+
+- **HTTP errors** mean the request was rejected before a job was created. You are not charged.
+- **Failed jobs** mean a job was created and later failed. The job has `status: "failed"`, and the charge is refunded.
+
+Every response includes an `X-Request-Id` header. Include it when you contact support.
+
+## HTTP errors
+
+```json
+{
+  "error": {
+    "type": "invalid_request",
+    "code": "invalid_parameter",
+    "message": "input.prompt is required",
+    "param": "input.prompt",
+    "request_id": "req_..."
+  }
+}
+```
+
+Branch on `code`. The `message` is for humans and can change.
+
+| HTTP | `type` | `code` | What to do |
+| --- | --- | --- | --- |
+| 400 | `invalid_request` | `invalid_request` | The body is not valid JSON. |
+| 400 | `invalid_request` | `invalid_parameter` | Fix the field named in `param`. |
+| 400 | `invalid_request` | `missing_parameter` | Add the missing field or header named in `param`. |
+| 400 | `invalid_request` | `max_cost_exceeded` | The job costs more than `max_cost_usd`. Raise the limit or pick a cheaper input. |
+| 401 | `authentication_error` | `invalid_api_key` | Check that the key is a valid, unrevoked `cok_` key. |
+| 402 | `billing_error` | `wallet_not_enabled` | Contact support to enable the API wallet. |
+| 402 | `billing_error` | `insufficient_balance` | Top up your API wallet. |
+| 404 | `not_found` | `job_not_found` | The job does not exist in this workspace. |
+| 409 | `conflict` | `idempotency_key_reused` | Use a new `Idempotency-Key` for a different request. |
+| 429 | `rate_limit_error` | `concurrency_limited` | Wait `Retry-After` seconds. See [Concurrency](/guides/concurrency). |
+| 500 | `api_error` | `internal_error` | Retry with the same `Idempotency-Key` and body. |
+
+## Failed jobs
+
+A failed job has an `error` object with a `code` and `message`:
+
+```json
+{
+  "id": "job_...",
+  "status": "failed",
+  "error": {
+    "code": "content_rejected",
+    "message": "The provider could not accept this generation request."
+  },
+  "cost": { "amount_usd": "0.076000", "refunded_usd": "0.076000" }
+}
+```
+
+| `error.code` | Meaning | What to do |
+| --- | --- | --- |
+| `model_busy` | Provider capacity is full. | Resubmit with a new `Idempotency-Key` after about 30 seconds. |
+| `content_rejected` | The provider's moderation rejected the input or output. | Change the prompt. |
+| `provider_unavailable` | The provider returned an error or timed out. | Resubmit with a new `Idempotency-Key`. |
+| `processing_failed` | Generation failed. | Resubmit with a new `Idempotency-Key`. |
+| `timeout` | No result after 30 minutes. | Resubmit with a new `Idempotency-Key`. |
+
+Failed jobs can be returned directly by `POST /videos/generation` with HTTP `202` when the provider rejects the job at submission time. Always check `status` on the returned job.

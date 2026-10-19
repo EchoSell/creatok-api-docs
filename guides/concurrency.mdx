@@ -1,0 +1,33 @@
+---
+title: "Concurrency"
+description: "How many jobs your workspace can run at the same time."
+---
+
+Each workspace can have a limited number of unfinished (`queued` or `running`) jobs at the same time. The default limit is **3**.
+
+Check your current usage and limit with `GET /account`:
+
+```json
+{
+  "object": "account",
+  "balance": { "amount_usd": "10.000000", "enabled": true },
+  "concurrency": { "active": 2, "limit": 3 }
+}
+```
+
+When the limit is reached, `POST /videos/generation` returns `429` with a `Retry-After` header. No job is created and you are not charged.
+
+```json
+{
+  "error": {
+    "type": "rate_limit_error",
+    "code": "concurrency_limited",
+    "message": "The workspace has reached its concurrent job limit",
+    "request_id": "req_..."
+  }
+}
+```
+
+Wait `Retry-After` seconds and retry with the same `Idempotency-Key` and body. For batch workloads, keep a local queue and submit a new job only when an earlier one reaches a final status.
+
+Contact [support@creatok.ai](mailto:support@creatok.ai) to request a higher limit.

@@ -2,72 +2,104 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "linden",
   "name": "CreatOK API",
+  "description": "Generate AI videos with Seedance models through the CreatOK API.",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
     "dark": "#15803D"
   },
-  "favicon": "/favicon.svg",
-  "navigation": {
-    "pages": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
-        ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
+  "favicon": "/favicon.png",
+  "logo": {
+    "light": "/logo/light.webp",
+    "dark": "/logo/dark.webp",
+    "href": "https://www.creatok.ai"
+  },
+  "api": {
+    "openapi": "api-reference/openapi.json",
+    "playground": {
+      "display": "interactive"
+    },
+    "examples": {
+      "languages": ["curl", "javascript", "python"]
     }
   },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Getting started",
+            "pages": ["index", "quickstart"]
+          },
+          {
+            "group": "Core concepts",
+            "pages": [
+              "guides/authentication",
+              "guides/jobs",
+              "guides/idempotency",
+              "guides/errors",
+              "guides/concurrency"
+            ]
+          },
+          {
+            "group": "Models",
+            "pages": ["guides/video-models"]
+          }
+        ]
+      },
+      {
+        "tab": "API reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": ["api-reference/introduction"]
+          },
+          {
+            "group": "Videos",
+            "openapi": "api-reference/openapi.json",
+            "pages": ["POST /videos/generation"]
+          },
+          {
+            "group": "Jobs",
+            "openapi": "api-reference/openapi.json",
+            "pages": ["GET /jobs/{jobId}", "GET /jobs"]
+          },
+          {
+            "group": "Account",
+            "openapi": "api-reference/openapi.json",
+            "pages": ["GET /account"]
+          }
+        ]
+      }
+    ]
   },
   "navbar": {
     "links": [
       {
         "label": "Support",
-        "href": "mailto:support@mintlify.com"
+        "href": "mailto:support@creatok.ai"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "label": "API console",
+      "href": "https://www.creatok.ai/app/api-platform"
     }
   },
   "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
+    "options": ["copy", "view", "chatgpt", "claude", "perplexity", "mcp", "cursor", "vscode"]
   },
   "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
-  },
-  "description": "CreatOK helps TikTok sellers and creators drive sales with AI-generated videos."
+    "links": [
+      {
+        "header": "CreatOK",
+        "items": [
+          { "label": "Website", "href": "https://www.creatok.ai" },
+          { "label": "API console", "href": "https://www.creatok.ai/app/api-platform" },
+          { "label": "OpenAPI spec", "href": "https://api.creatok.ai/v1/openapi.json" }
+        ]
+      }
+    ]
+  }
 }

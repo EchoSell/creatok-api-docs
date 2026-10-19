@@ -1,0 +1,72 @@
+---
+title: "Jobs and polling"
+description: "Track asynchronous jobs, poll for results, and download outputs."
+---
+
+Generation is asynchronous. `POST /videos/generation` returns a job immediately, and the video becomes available later on the same job.
+
+## Job statuses
+
+| Status | Final | Meaning |
+| --- | --- | --- |
+| `queued` | No | Accepted and waiting for the provider. |
+| `running` | No | The provider is generating the output. |
+| `succeeded` | Yes | `output.files` contains the result. |
+| `failed` | Yes | `error.code` explains why. The charge is refunded. |
+| `canceled` | Yes | The job was canceled. The charge is refunded. |
+
+## Poll a single job
+
+Call `GET /jobs/{jobId}`. While the job is not final, the response includes a `Retry-After` header with the number of seconds to wait, currently `10`. Final jobs do not include the header.
+
+## Poll many jobs
+
+To track many jobs at once, list the unfinished jobs instead of polling each one:
+
+```bash
+curl "https://api.creatok.ai/v1/jobs?status=queued,running&limit=100" \
+  -H "Authorization: Bearer $CREATOK_API_KEY"
+```
+
+`GET /jobs` supports these query parameters:
+
+| Parameter | Description |
+| --- | --- |
+| `status` | Comma-separated statuses, for example `queued,running`. |
+| `api_key_id` | Only jobs submitted with this key. |
+| `created_after` | ISO 8601 timestamp, inclusive. |
+| `created_before` | ISO 8601 timestamp, exclusive. |
+| `limit` | 1–100. Defaults to `20`. |
+| `cursor` | The `next_cursor` from the previous page. |
+
+The response is a page of jobs. Continue with `next_cursor` while `has_more` is `true`.
+
+```json
+{
+  "object": "list",
+  "data": [{ "id": "job_...", "object": "job", "status": "running" }],
+  "has_more": true,
+  "next_cursor": "..."
+}
+```
+
+## Outputs and retention
+
+- `output.files[].url` is a signed URL that expires after about one hour. Fetch the job again to get a fresh URL.
+- `expires_at` is 48 hours after `completed_at`. After that time, `output.files` is empty, but the rest of the job stays available.
+
+<Warning>
+  Download outputs to your own storage as soon as a job succeeds. CreatOK cannot recover outputs after 48 hours.
+</Warning>
+
+## Metadata
+
+Pass your own identifiers in `metadata` when you submit a job, for example an order ID. The job returns the same object, so you can match results to your records.
+
+```json
+{ "metadata": { "order_id": "ord_123" } }
+```
+
+## Cost
+
+`cost.amount_usd` is the amount charged when the job was accepted. When a job fails or is canceled, the full amount is refunded to your API wallet. Amounts are decimal strings with six decimal places.

@@ -1,0 +1,35 @@
+---
+title: "API reference"
+description: "Base URL, authentication, and conventions for every endpoint."
+---
+
+## Base URL
+
+```text
+https://api.creatok.ai/v1
+```
+
+## Authentication
+
+Send your organization API key as a bearer token. See [Authentication](/guides/authentication).
+
+```bash
+Authorization: Bearer cok_...
+```
+
+## Conventions
+
+- Requests and responses use JSON.
+- Successful responses return the resource directly with a `2xx` status. Errors use the [error format](/guides/errors).
+- Every response includes an `X-Request-Id` header.
+- Money amounts are decimal USD strings, for example `"0.076000"`.
+- Timestamps are ISO 8601 strings in UTC.
+- The `/v1` API only receives backward-compatible additions. Breaking changes ship under a new major version.
+
+## OpenAPI specification
+
+The machine-readable specification is available without authentication:
+
+```text
+https://api.creatok.ai/v1/openapi.json
+```
