@@ -29,7 +29,7 @@ Branch on `code`. The `message` is for humans and can change.
 | HTTP | `type` | `code` | What to do |
 | --- | --- | --- | --- |
 | 400 | `invalid_request` | `invalid_request` | The body is not valid JSON. |
-| 400 | `invalid_request` | `invalid_parameter` | Fix the field named in `param`. |
+| 400 | `invalid_request` | `invalid_parameter` | Fix the request. `param`, when present, identifies the field. |
 | 400 | `invalid_request` | `missing_parameter` | Add the missing field or header named in `param`. |
 | 400 | `invalid_request` | `max_cost_exceeded` | The job costs more than `max_cost_usd`. Raise the limit or pick a cheaper input. |
 | 400 | `invalid_request` | `media_too_large` | Reduce the upload size. See [Files](/guides/files). |
@@ -59,11 +59,11 @@ A failed job has an `error` object with a `code` and `message`:
 
 | `error.code` | Meaning | What to do |
 | --- | --- | --- |
-| `model_busy` | Provider capacity is full. | Resubmit with a new `Idempotency-Key` after about 30 seconds. |
-| `content_rejected` | The provider's moderation rejected the input or output. | Change the prompt. |
-| `provider_unavailable` | The provider returned an error or timed out. | Resubmit with a new `Idempotency-Key`. |
+| `model_busy` | The model is at capacity. | Resubmit with a new `Idempotency-Key` after about 30 seconds. |
+| `content_rejected` | The input or output did not pass moderation. | Change the prompt. |
+| `provider_unavailable` | The generation service was unavailable. | Resubmit with a new `Idempotency-Key`. |
 | `processing_failed` | Generation failed. | Resubmit with a new `Idempotency-Key`. |
 
-Failed jobs can be returned directly by `POST /videos/generation` with HTTP `202` when the provider rejects the job at submission time. Always check `status` on the returned job.
+Failed jobs can be returned directly by `POST /videos/generation` with HTTP `202` when generation is rejected at submission time. Always check `status` on the returned job.
 
 For failed or canceled jobs, inspect `cost.refunded_usd` for the recorded refund; `cost.amount_usd` remains the original charge.

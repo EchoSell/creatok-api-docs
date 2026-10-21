@@ -9,11 +9,13 @@ Generation is asynchronous. `POST /videos/generation` returns a job after submis
 
 | Status | Final | Meaning |
 | --- | --- | --- |
-| `queued` | No | Accepted and waiting for the provider. |
-| `running` | No | The provider is generating the output. |
+| `queued` | No | Accepted and waiting for processing. |
+| `running` | No | Generation is in progress. |
 | `succeeded` | Yes | `output.files` contains the result. |
 | `failed` | Yes | `error.code` explains why. The charge is refunded. |
 | `canceled` | Yes | The job was canceled. The charge is refunded. |
+
+There is no public cancellation endpoint. Treat `canceled` as a terminal status if you receive it.
 
 ## Poll a single job
 
@@ -33,11 +35,13 @@ curl "https://api.creatok.ai/v1/jobs?status=queued,running&limit=100" \
 | Parameter | Description |
 | --- | --- |
 | `status` | Comma-separated statuses, for example `queued,running`. |
-| `api_key_id` | Only jobs submitted with this key. |
+| `api_key_id` | Positive integer ID of the organization API key that submitted the jobs; not the key secret. |
 | `created_after` | ISO 8601 timestamp, inclusive. |
 | `created_before` | ISO 8601 timestamp, exclusive. |
 | `limit` | 1–100. Defaults to `20`. |
 | `cursor` | The `next_cursor` from the previous page. |
+
+When you supply both date filters, `created_after` must be earlier than `created_before`. Use comma-separated statuses without spaces.
 
 The response is a page of jobs, newest first. Continue with `next_cursor` while `has_more` is `true`.
 
@@ -58,6 +62,10 @@ The response is a page of jobs, newest first. Continue with `next_cursor` while 
 <Warning>
   Download outputs to your own storage as soon as a job succeeds. CreatOK cannot recover outputs after 48 hours.
 </Warning>
+
+## Input in responses
+
+The job returns normalized `input`, which can include defaults and resolved media values. Store your original request separately. Do not reuse the returned `input` as a submission body.
 
 ## Metadata
 

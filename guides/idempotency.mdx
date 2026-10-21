@@ -11,13 +11,15 @@ Idempotency-Key: 6f1c1a6e-3c1d-4b8e-9a54-1f7f2e0b9c11
 
 ## How keys behave
 
-Keys are unique within your workspace and never expire.
+Keys are scoped to your workspace across all organization API keys. The API does not currently expire idempotency records.
 
 | Request | Result |
 | --- | --- |
-| New key | A new job is created and charged. |
+| New key | A valid request that passes admission creates and charges a new job. |
 | Same key, identical body | The original job is returned. You are not charged again. |
 | Same key, different body | `409` with `idempotency_key_reused`. |
+
+An identical replay returns HTTP `202` with the job's current status, including terminal statuses. Changes to `metadata` or `max_cost_usd` also count as a different request. Preserve your original body; do not reconstruct it from the job response.
 
 ## Retrying safely
 

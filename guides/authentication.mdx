@@ -18,7 +18,7 @@ Authorization: Bearer cok_...
 
 ## Rotating and revoking keys
 
-Rotating a key revokes the old key immediately and creates a new key with the same name. Update your deployments before you rotate, or create a second key, switch to it, and then revoke the first one.
+Rotating a key revokes the old key immediately and creates a new key with the same name. For uninterrupted access, create a second key, switch your deployments to it, and then revoke the first key.
 
 A request with a missing, malformed, or revoked key returns `401`:
 

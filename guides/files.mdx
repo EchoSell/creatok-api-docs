@@ -12,7 +12,9 @@ curl https://api.creatok.ai/v1/files \
   -d '{"content_type":"image/jpeg","size":123456,"filename":"reference.jpg"}'
 ```
 
-The response contains `file_id`, `upload_url`, `upload_fields`, and `expires_at`. Upload with a **multipart POST**, not PUT. Include every returned form field unchanged and append the `file` field last. Do not send your API key to the upload URL.
+All three fields are required. `size` must be a positive integer. `filename` must contain 1–255 characters after trimming and no control characters. Send a MIME type without parameters, such as `image/jpeg`. Unknown fields are rejected.
+
+The HTTP `200` response contains `file_id`, `upload_url`, `upload_fields`, and `expires_at`. Upload with a **multipart POST**, not PUT. Include every returned form field unchanged and append the `file` field last. Do not send your API key to the upload URL.
 
 ```javascript Node.js
 import { readFile } from "node:fs/promises";

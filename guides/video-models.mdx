@@ -29,11 +29,11 @@ Select a model with the `model` field of `POST /videos/generation`. All four mod
 | `firstFrameKey` | string | — | First-frame image; required in frame mode. |
 | `endFrameKey` | string | — | Optional end-frame image; requires a first frame. |
 | `generationMode` | string | inferred | `reference`, `frame`, or `edit`. |
-| `autoMatchVideoDuration` | boolean | `true` in edit mode | Only supported as `true` for Seedance 2.5 edit mode. |
+| `autoMatchVideoDuration` | boolean | `true` in edit mode | `true` is accepted only for Seedance 2.5 edit mode. `false` is rejected in edit mode. |
 
 Media fields accept the `file_id` or `upload_fields.key` from [Files](/guides/files), after upload completes. They do not accept arbitrary URLs or files from another workspace. Prompts are limited to 8,000 characters.
 
-Any other field returns `400 invalid_parameter`. The defaults are the cheapest options, so set `seconds` and `definition` explicitly when you need more.
+Unknown fields at the request root or inside `input` return `400 invalid_parameter`. Set `seconds` and `definition` explicitly when you need a specific duration or resolution.
 
 ```json
 {
@@ -76,6 +76,23 @@ Upload each asset first. Replace the sample file IDs below with your own complet
   }
 }
 ```
+
+```json Multiple images and mixed references
+{
+  "model": "seedance-2-mini",
+  "input": {
+    "prompt": "Combine these product views using the reference camera movement",
+    "referenceImageKeys": [
+      "file_11111111-1111-4111-8111-111111111111",
+      "file_33333333-3333-4333-8333-333333333333"
+    ],
+    "referenceVideoKeys": ["file_22222222-2222-4222-8222-222222222222"],
+    "seconds": 4
+  }
+}
+```
+
+For multiple images without video, omit `referenceVideoKeys` from this example.
 
 ```json First and last frames
 {

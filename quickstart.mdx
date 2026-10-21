@@ -36,10 +36,11 @@ This guide submits a 4-second 480p video with `seedance-2-mini`, polls the job, 
     Generate a new `Idempotency-Key` for each new job. Reuse it only when you retry the same request.
 
     ```bash
+    export CREATOK_IDEMPOTENCY_KEY="$(uuidgen)"
     curl https://api.creatok.ai/v1/videos/generation \
       -H "Authorization: Bearer $CREATOK_API_KEY" \
       -H "Content-Type: application/json" \
-      -H "Idempotency-Key: $(uuidgen)" \
+      -H "Idempotency-Key: $CREATOK_IDEMPOTENCY_KEY" \
       -d '{
         "model": "seedance-2-mini",
         "input": {
@@ -51,6 +52,8 @@ This guide submits a 4-second 480p video with `seedance-2-mini`, polls the job, 
         "max_cost_usd": "1.00"
       }'
     ```
+
+    Keep this key and request body when retrying. Run `uuidgen` again only for a new job.
 
     The API responds with `202 Accepted` and a job (abbreviated below). Inspect `cost.amount_usd` for the exact charge; the cost cap is not a quoted price.
 
@@ -96,26 +99,29 @@ This guide submits a 4-second 480p video with `seedance-2-mini`, polls the job, 
 
 ## Complete example
 
+Use Node.js 22 or later. Save this example as `generate.mjs`. Set `CREATOK_IDEMPOTENCY_KEY` once for this request and preserve it across retries.
+
 ```javascript Node.js
-import { randomUUID } from "node:crypto";
 import { writeFile } from "node:fs/promises";
 
 const baseUrl = "https://api.creatok.ai/v1";
+const idempotencyKey = process.env.CREATOK_IDEMPOTENCY_KEY;
+if (!idempotencyKey) throw new Error("Set CREATOK_IDEMPOTENCY_KEY before submitting");
 const headers = { Authorization: `Bearer ${process.env.CREATOK_API_KEY}` };
 
 async function call(path, init = {}) {
   const res = await fetch(baseUrl + path, { ...init, headers: { ...headers, ...init.headers } });
   const body = await res.json();
-  if (!res.ok) throw new Error(`${body.error.code}: ${body.error.message} (${body.error.request_id})`);
+  if (!res.ok) throw new Error(`${res.status}: ${body.error?.code ?? "request_failed"}: ${body.error?.message ?? res.statusText} (${res.headers.get("x-request-id")})`);
   return { body, retryAfter: Number(res.headers.get("retry-after")) || 10 };
 }
 
 let { body: job, retryAfter } = await call("/videos/generation", {
   method: "POST",
-  headers: { "Content-Type": "application/json", "Idempotency-Key": randomUUID() },
+  headers: { "Content-Type": "application/json", "Idempotency-Key": idempotencyKey },
   body: JSON.stringify({
     model: "seedance-2-mini",
-    input: { prompt: "A quiet lake at sunrise", seconds: 4, definition: "480p", orientation: "16:9" },
+    input: { prompt: "A quiet lake at sunrise, gentle camera movement", seconds: 4, definition: "480p", orientation: "16:9" },
     max_cost_usd: "1.00",
   }),
 });
@@ -127,7 +133,10 @@ while (job.status === "queued" || job.status === "running") {
 
 if (job.status !== "succeeded") throw new Error(`Job ${job.status}: ${job.error?.code}`);
 
-const video = await fetch(job.output.files[0].url);
+const file = job.output.files.find((file) => file.type === "video");
+if (!file) throw new Error("No video is available; check expires_at");
+const video = await fetch(file.url);
+if (!video.ok) throw new Error(`Download failed: ${video.status}`);
 await writeFile("output.mp4", Buffer.from(await video.arrayBuffer()));
 ```
 
