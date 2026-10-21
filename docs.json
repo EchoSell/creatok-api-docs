@@ -49,11 +49,28 @@
               "guides/concurrency",
               "guides/files"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "Models",
+        "groups": [
           {
-            "group": "Models",
+            "group": "Video",
             "pages": [
-              "guides/video-models"
+              "guides/video-models",
+              {
+                "group": "Seedance 2",
+                "pages": [
+                  "models/video/seedance-2/generation"
+                ]
+              },
+              {
+                "group": "Seedance 2.5",
+                "pages": [
+                  "models/video/seedance-2.5/generation"
+                ]
+              }
             ]
           }
         ]
