@@ -33,10 +33,10 @@ Select a model with the `model` field of `POST /videos/generation`. All four mod
 | `orientation` | string | `9:16` in text/reference modes | `21:9`, `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, or `auto`. Omit in Seedance 2.5 frame and edit modes. |
 | `watermark` | boolean | — | Whether to add a watermark. |
 | `seed` | string | — | Seed for more repeatable results. |
-| `referenceImageKeys` | string[] | — | Uploaded reference images. |
-| `referenceVideoKeys` | string[] | — | Uploaded reference videos. |
-| `firstFrameKey` | string | — | First-frame image; required in frame mode. |
-| `endFrameKey` | string | — | Optional end-frame image; requires a first frame. |
+| `referenceImageKeys` | string[] | — | Uploaded reference images. [Upload first](/guides/files), then use the returned `file_id`. |
+| `referenceVideoKeys` | string[] | — | Uploaded reference videos. [Upload first](/guides/files), then use the returned `file_id`. |
+| `firstFrameKey` | string | — | First-frame image; required in frame mode. [Upload first](/guides/files), then use the returned `file_id`. |
+| `endFrameKey` | string | — | Optional end-frame image; requires a first frame. [Upload first](/guides/files), then use the returned `file_id`. |
 | `generationMode` | string | inferred | `reference`, `frame`, or `edit`. |
 | `autoMatchVideoDuration` | boolean | `true` in edit mode | `true` is accepted only for Seedance 2.5 edit mode. `false` is rejected in edit mode. |
 

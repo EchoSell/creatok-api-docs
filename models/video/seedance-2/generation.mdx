@@ -51,10 +51,10 @@ Use these fields inside `input`:
 | `seconds` | integer | 4–15; defaults to `4`. |
 | `definition` | string | Defaults to `480p`. Use a resolution supported by your variant in the table above. |
 | `orientation` | string | `21:9`, `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, or `auto`. Defaults to `9:16` for text/reference modes. You can also set this in frame mode. |
-| `referenceImageKeys` | string[] | Up to 9 uploaded images. |
-| `referenceVideoKeys` | string[] | Up to 3 uploaded videos. |
-| `firstFrameKey` | string | An uploaded image; required in frame mode. |
-| `endFrameKey` | string | An uploaded image; requires `firstFrameKey`. |
+| `referenceImageKeys` | string[] | Up to 9 uploaded images. [Upload first](/guides/files), then use the returned `file_id`. |
+| `referenceVideoKeys` | string[] | Up to 3 uploaded videos. [Upload first](/guides/files), then use the returned `file_id`. |
+| `firstFrameKey` | string | An uploaded image; required in frame mode. [Upload first](/guides/files), then use the returned `file_id`. |
+| `endFrameKey` | string | An uploaded image; requires `firstFrameKey`. [Upload first](/guides/files), then use the returned `file_id`. |
 | `generationMode` | string | `reference` or `frame`. Reference/frame mode is inferred from the media fields when omitted. |
 | `autoMatchVideoDuration` | boolean | Omit this field. `true` is not accepted by these variants. |
 | `watermark` | boolean | Optional watermark setting. |
@@ -117,6 +117,10 @@ Describe the scene, subject movement, and camera movement. No upload is required
 
 ## Single reference image
 
+<Note>
+  [Upload each reference file first](/guides/files): request a grant with `POST /files`, complete the multipart upload, then replace the sample IDs below with the returned `file_id` values. `upload_fields.key` is also accepted.
+</Note>
+
 Use one image as visual guidance. To specify the opening frame instead, use the first-frame example.
 
 ```json
@@ -135,6 +139,10 @@ Use one image as visual guidance. To specify the opening frame instead, use the 
 ```
 
 ## Multiple reference images
+
+<Note>
+  [Upload each reference file first](/guides/files): request a grant with `POST /files`, complete the multipart upload, then replace the sample IDs below with the returned `file_id` values. `upload_fields.key` is also accepted.
+</Note>
 
 Upload every image separately. Describe how the subjects or visual details should appear together. Reference array order does not turn images into first and last frames.
 
@@ -156,6 +164,10 @@ Upload every image separately. Describe how the subjects or visual details shoul
 
 ## Reference video
 
+<Note>
+  [Upload each reference file first](/guides/files): request a grant with `POST /files`, complete the multipart upload, then replace the sample IDs below with the returned `file_id` values. `upload_fields.key` is also accepted.
+</Note>
+
 Use a video as guidance for a new generation. Set the output duration explicitly; reference mode does not automatically match the source duration. Reference-video duration also contributes to the charge.
 
 ```json
@@ -174,6 +186,10 @@ Use a video as guidance for a new generation. Set the output duration explicitly
 ```
 
 ## Images and video together
+
+<Note>
+  [Upload each reference file first](/guides/files): request a grant with `POST /files`, complete the multipart upload, then replace the sample IDs below with the returned `file_id` values. `upload_fields.key` is also accepted.
+</Note>
 
 Combine visual references with video guidance. Do not add first/end-frame fields to this request.
 
@@ -197,6 +213,10 @@ Combine visual references with video guidance. Do not add first/end-frame fields
 
 ## First frame
 
+<Note>
+  [Upload each reference file first](/guides/files): request a grant with `POST /files`, complete the multipart upload, then replace the sample IDs below with the returned `file_id` values. `upload_fields.key` is also accepted.
+</Note>
+
 Use an uploaded image as the opening frame. Omit both reference arrays. The mode can be inferred, but this example sets it explicitly.
 
 ```json
@@ -214,6 +234,10 @@ Use an uploaded image as the opening frame. Omit both reference arrays. The mode
 ```
 
 ## First and last frames
+
+<Note>
+  [Upload each reference file first](/guides/files): request a grant with `POST /files`, complete the multipart upload, then replace the sample IDs below with the returned `file_id` values. `upload_fields.key` is also accepted.
+</Note>
 
 Upload both images. The first image starts the video and the second supplies the ending frame. An end frame alone is not accepted. Do not include reference arrays.
 
