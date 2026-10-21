@@ -39,7 +39,7 @@ Open `http://localhost:3000`. Check Quickstart, Files, Video models, Jobs, and t
 
 ## Publishing
 
-Keep this work on `docs/current-api-capabilities`. Do not push or merge to `main` until production readiness is confirmed; `main` deploys through the Mintlify GitHub app. Keep production readiness separate from test-environment results.
+Pushing to `main` deploys through the Mintlify GitHub app. On 2026-10-21, the maintainer approved publishing these docs before the production API deployment. The introduction, quickstart, and API overview explicitly label production availability as pending. Keep production readiness separate from test-environment results.
 
 ## Capability audit (2026-10-21)
 
@@ -51,9 +51,9 @@ Release checks and unresolved items:
 
 - Production `https://api.creatok.ai/v1/openapi.json` returned HTTP `404` in this audit. Production capability parity is unconfirmed. The production URLs in the guides describe the intended release target.
 - The handoff reports test deployment `6cc20da78`, OpenAPI `1.1.0`, and six successful real generation cases: single image, multiple images, video, mixed media, frames, and adaptive editing. These are test-environment results, not production verification. This audit's unauthenticated test-schema request returned HTTP `302`; the earlier result was not independently reproduced.
-- The generated upload endpoint descriptions still name the storage implementation. Fix those descriptions in the app's OpenAPI source before publication, then re-export. Do not patch the generated JSON in this repository.
+- The generated upload endpoint descriptions still name the storage implementation. Fix those descriptions in the app's OpenAPI source in a follow-up, then re-export. Do not patch the generated JSON in this repository.
 - The generated request schema leaves some model-specific restrictions to descriptions and runtime validation, including duration ranges, prompt length, supported resolutions, and media limits. The model guide documents those restrictions; schema validation alone does not prove media acceptance.
-- Before publication, confirm production routes, upload and generation flows, job completion/refunds, and console pricing. Then compare the production schema, repeat documentation validation, and approve publication separately.
+- Before announcing production API availability, confirm production routes, upload and generation flows, job completion/refunds, and console pricing. Compare the production schema, repeat documentation validation, and remove the pending-deployment notices only after verification.
 
 Audit validation completed:
 
