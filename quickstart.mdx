@@ -28,7 +28,7 @@ This guide submits a 4-second 480p video with `seedance-2-mini`, polls the job, 
     {
       "object": "account",
       "balance": { "amount_usd": "10.000000", "enabled": true },
-      "concurrency": { "active": 0, "limit": 3 }
+      "concurrency": { "active": 0, "limit": 10 }
     }
     ```
   </Step>
@@ -48,11 +48,11 @@ This guide submits a 4-second 480p video with `seedance-2-mini`, polls the job, 
           "definition": "480p",
           "orientation": "16:9"
         },
-        "max_cost_usd": "0.10"
+        "max_cost_usd": "1.00"
       }'
     ```
 
-    The API responds with `202 Accepted` and a job:
+    The API responds with `202 Accepted` and a job (abbreviated below). Inspect `cost.amount_usd` for the exact charge; the cost cap is not a quoted price.
 
     ```json
     {
@@ -62,7 +62,6 @@ This guide submits a 4-second 480p video with `seedance-2-mini`, polls the job, 
       "model": "seedance-2-mini",
       "status": "queued",
       "output": { "files": [] },
-      "cost": { "amount_usd": "0.076000", "refunded_usd": "0.000000" },
       "error": null,
       "created_at": "2026-10-19T08:00:00.000Z",
       "completed_at": null,
@@ -117,7 +116,7 @@ let { body: job, retryAfter } = await call("/videos/generation", {
   body: JSON.stringify({
     model: "seedance-2-mini",
     input: { prompt: "A quiet lake at sunrise", seconds: 4, definition: "480p", orientation: "16:9" },
-    max_cost_usd: "0.10",
+    max_cost_usd: "1.00",
   }),
 });
 
@@ -142,3 +141,5 @@ await writeFile("output.mp4", Buffer.from(await video.arrayBuffer()));
     Handle HTTP errors and failed jobs.
   </Card>
 </CardGroup>
+
+To generate from images, videos, or frames, first follow [Files](/guides/files), then select a [media mode](/guides/video-models).

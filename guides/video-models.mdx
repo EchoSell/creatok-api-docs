@@ -3,7 +3,7 @@ title: "Video models"
 description: "Supported Seedance models, input fields, limits, and how pricing works."
 ---
 
-Select a model with the `model` field of `POST /videos/generation`. All models currently support **text-to-video**.
+Select a model with the `model` field of `POST /videos/generation`. All four models support text, reference images, reference videos, and first/end frames. Seedance 2.5 also supports editing with adaptive duration.
 
 ## Models
 
@@ -21,9 +21,17 @@ Select a model with the `model` field of `POST /videos/generation`. All models c
 | `prompt` | string | — | **Required.** What the video shows. |
 | `seconds` | integer | `4` | Video duration. Must be within the model's range. |
 | `definition` | string | `480p` | Output resolution. Must be supported by the model. |
-| `orientation` | string | `9:16` | Aspect ratio: `21:9`, `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, or `auto`. |
+| `orientation` | string | `9:16` in text/reference modes | `21:9`, `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, or `auto`. Omit in Seedance 2.5 frame and edit modes. |
 | `watermark` | boolean | — | Whether to add a watermark. |
 | `seed` | string | — | Seed for more repeatable results. |
+| `referenceImageKeys` | string[] | — | Uploaded reference images. |
+| `referenceVideoKeys` | string[] | — | Uploaded reference videos. |
+| `firstFrameKey` | string | — | First-frame image; required in frame mode. |
+| `endFrameKey` | string | — | Optional end-frame image; requires a first frame. |
+| `generationMode` | string | inferred | `reference`, `frame`, or `edit`. |
+| `autoMatchVideoDuration` | boolean | `true` in edit mode | Only supported as `true` for Seedance 2.5 edit mode. |
+
+Media fields accept the `file_id` or `upload_fields.key` from [Files](/guides/files), after upload completes. They do not accept arbitrary URLs or files from another workspace. Prompts are limited to 8,000 characters.
 
 Any other field returns `400 invalid_parameter`. The defaults are the cheapest options, so set `seconds` and `definition` explicitly when you need more.
 
@@ -40,11 +48,82 @@ Any other field returns `400 invalid_parameter`. The defaults are the cheapest o
 }
 ```
 
+## Media modes
+
+Upload each asset first. Replace the sample file IDs below with your own completed uploads.
+
+- Reference images/videos select `reference` automatically when `generationMode` is omitted. You can combine reference images and reference videos.
+- `firstFrameKey` selects `frame` automatically. You cannot combine frames with reference arrays or a different mode.
+- Set `generationMode: "edit"` explicitly for Seedance 2.5 editing. At least one reference video is required. Omit `seconds` and `orientation`; the first source video determines output duration and aspect ratio. `autoMatchVideoDuration` defaults to `true`; `false` is rejected. Output duration is not guaranteed to be frame-exact.
+
+```json Reference image
+{
+  "model": "seedance-2-mini",
+  "input": {
+    "prompt": "Animate this product with a slow camera orbit",
+    "referenceImageKeys": ["file_11111111-1111-4111-8111-111111111111"]
+  }
+}
+```
+
+```json Reference video
+{
+  "model": "seedance-2-mini",
+  "input": {
+    "prompt": "Use the reference camera movement for a beach scene",
+    "referenceVideoKeys": ["file_22222222-2222-4222-8222-222222222222"],
+    "seconds": 4
+  }
+}
+```
+
+```json First and last frames
+{
+  "model": "seedance-2-mini",
+  "input": {
+    "prompt": "Transition smoothly between these frames",
+    "generationMode": "frame",
+    "firstFrameKey": "file_11111111-1111-4111-8111-111111111111",
+    "endFrameKey": "file_33333333-3333-4333-8333-333333333333"
+  }
+}
+```
+
+```json Adaptive editing
+{
+  "model": "seedance-2.5",
+  "input": {
+    "prompt": "Replace the background with a beach",
+    "generationMode": "edit",
+    "referenceVideoKeys": ["file_22222222-2222-4222-8222-222222222222"],
+    "autoMatchVideoDuration": true
+  }
+}
+```
+
+## Media limits
+
+The upload limit and model limit both apply. Images are capped at **10 MiB** by the upload grant, including for Seedance 2.5. Videos are capped at **100 MiB** by the upload grant, and **50 MiB** for Seedance 2 / Mini / Fast at generation submission.
+
+| Constraint | Seedance 2 / Mini / Fast | Seedance 2.5 |
+| --- | --- | --- |
+| Reference images | Up to 9 | Up to 30 |
+| Reference videos | Up to 3 | Up to 10; at most 40 combined reference items |
+| Video duration | 2–15 seconds each, at most 15 seconds total | 2–30 seconds each, at most 30 seconds total; edit requires at least 4 seconds |
+| Video dimensions | 300–6000 pixels per side; 409,600–927,408 total pixels | 300–6000 pixels per side; 409,600–8,295,044 total pixels |
+| Video frame rate | 23–60 fps | 23–60 fps |
+
+Images must be 300–6000 pixels per side. Images and videos must have an aspect ratio between 0.4 and 2.5. Videos use MP4 or MOV. Images use JPEG, PNG, or WebP; Seedance 2.5 also accepts BMP, TIFF, GIF, HEIC, and HEIF. The server validates actual media metadata before charging; an upload grant alone does not guarantee the model can use the file.
+
 ## Pricing
 
-You pay per second of output video. The rate depends on the model and resolution:
+You pay for estimated token usage, using the model's USD unit price per million tokens:
 
-**Cost = rate per second × `seconds`**
+**Cost = estimated tokens × USD price per million tokens / 1,000,000**
+
+The final charge rounds up to one micro-dollar (six decimal places). Dimensions, aspect ratio, and billable duration determine token usage. With reference video, billable duration is output duration plus the greater of four seconds or total reference-video duration. Without reference video, only output duration contributes.
+
+Text and image inputs use the same unit-price category. Reference-video inputs use a separate category. Some models have separate high-resolution price tiers; 480p and 720p share a tier. In edit mode the server resolves duration and aspect ratio from the source video before quoting. Workspace contract pricing applies when configured.
 
 See current rates on the [pricing page](https://www.creatok.ai/app/api-platform/pricing) in the API console. Each job keeps the rate that applied when it was accepted, and `cost.amount_usd` on the job shows the exact charge.
 

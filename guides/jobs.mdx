@@ -3,7 +3,7 @@ title: "Jobs and polling"
 description: "Track asynchronous jobs, poll for results, and download outputs."
 ---
 
-Generation is asynchronous. `POST /videos/generation` returns a job immediately, and the video becomes available later on the same job.
+Generation is asynchronous. `POST /videos/generation` returns a job after submission is processed, and the video becomes available later on the same job.
 
 ## Job statuses
 
@@ -17,7 +17,7 @@ Generation is asynchronous. `POST /videos/generation` returns a job immediately,
 
 ## Poll a single job
 
-Call `GET /jobs/{jobId}`. While the job is not final, the response includes a `Retry-After` header with the number of seconds to wait, currently `10`. Final jobs do not include the header.
+Call `GET /jobs/{jobId}`. While the job is not final, the response includes a `Retry-After` header with the number of seconds to wait, currently `10`. Final jobs do not include the header. Job details may be cached for up to 60 seconds; status updates invalidate the cache. There is no fixed 30-minute automatic timeout.
 
 ## Poll many jobs
 
@@ -39,7 +39,7 @@ curl "https://api.creatok.ai/v1/jobs?status=queued,running&limit=100" \
 | `limit` | 1–100. Defaults to `20`. |
 | `cursor` | The `next_cursor` from the previous page. |
 
-The response is a page of jobs. Continue with `next_cursor` while `has_more` is `true`.
+The response is a page of jobs, newest first. Continue with `next_cursor` while `has_more` is `true`.
 
 ```json
 {
@@ -69,4 +69,4 @@ Pass your own identifiers in `metadata` when you submit a job, for example an or
 
 ## Cost
 
-`cost.amount_usd` is the amount charged when the job was accepted. When a job fails or is canceled, the full amount is refunded to your API wallet. Amounts are decimal strings with six decimal places.
+`cost.amount_usd` is the amount charged when the job was accepted. When a job fails or is canceled, the full amount is refunded to your API wallet. `cost.refunded_usd` reports the actual refund recorded. The original `amount_usd` stays unchanged; net spending is `amount_usd - refunded_usd`. Amounts are decimal strings with six decimal places.

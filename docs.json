@@ -20,7 +20,11 @@
       "display": "interactive"
     },
     "examples": {
-      "languages": ["curl", "javascript", "python"]
+      "languages": [
+        "curl",
+        "javascript",
+        "python"
+      ]
     }
   },
   "navigation": {
@@ -30,7 +34,10 @@
         "groups": [
           {
             "group": "Getting started",
-            "pages": ["index", "quickstart"]
+            "pages": [
+              "index",
+              "quickstart"
+            ]
           },
           {
             "group": "Core concepts",
@@ -39,12 +46,15 @@
               "guides/jobs",
               "guides/idempotency",
               "guides/errors",
-              "guides/concurrency"
+              "guides/concurrency",
+              "guides/files"
             ]
           },
           {
             "group": "Models",
-            "pages": ["guides/video-models"]
+            "pages": [
+              "guides/video-models"
+            ]
           }
         ]
       },
@@ -53,22 +63,38 @@
         "groups": [
           {
             "group": "Overview",
-            "pages": ["api-reference/introduction"]
+            "pages": [
+              "api-reference/introduction"
+            ]
           },
           {
             "group": "Videos",
             "openapi": "api-reference/openapi.json",
-            "pages": ["POST /videos/generation"]
+            "pages": [
+              "POST /videos/generation"
+            ]
           },
           {
             "group": "Jobs",
             "openapi": "api-reference/openapi.json",
-            "pages": ["GET /jobs/{jobId}", "GET /jobs"]
+            "pages": [
+              "GET /jobs/{jobId}",
+              "GET /jobs"
+            ]
           },
           {
             "group": "Account",
             "openapi": "api-reference/openapi.json",
-            "pages": ["GET /account"]
+            "pages": [
+              "GET /account"
+            ]
+          },
+          {
+            "group": "Files",
+            "openapi": "api-reference/openapi.json",
+            "pages": [
+              "POST /files"
+            ]
           }
         ]
       }
@@ -88,16 +114,34 @@
     }
   },
   "contextual": {
-    "options": ["copy", "view", "chatgpt", "claude", "perplexity", "mcp", "cursor", "vscode"]
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "links": [
       {
         "header": "CreatOK",
         "items": [
-          { "label": "Website", "href": "https://www.creatok.ai" },
-          { "label": "API console", "href": "https://www.creatok.ai/app/api-platform" },
-          { "label": "OpenAPI spec", "href": "https://api.creatok.ai/v1/openapi.json" }
+          {
+            "label": "Website",
+            "href": "https://www.creatok.ai"
+          },
+          {
+            "label": "API console",
+            "href": "https://www.creatok.ai/app/api-platform"
+          },
+          {
+            "label": "OpenAPI spec",
+            "href": "https://api.creatok.ai/v1/openapi.json"
+          }
         ]
       }
     ]

@@ -31,3 +31,9 @@ Open `http://localhost:3000`. Run `mint broken-links` before pushing.
 ## Publishing
 
 Pushing to `main` deploys through the Mintlify GitHub app.
+
+## Capability sync (2026-10-21)
+
+This update targets the app's `feat/openapi` token-pricing implementation (`9ee304ffa`) plus the matching OpenAPI descriptions. It covers signed file uploads, reference media, frames, adaptive editing, token-based USD pricing, refunds, and current concurrency behavior.
+
+Deploy the matching app changes before publishing this documentation. Refresh the spec from that deployment and run `mint validate` and `mint broken-links` before merging to `main`. Do not replace the updated spec with an older production version while the app release is pending.

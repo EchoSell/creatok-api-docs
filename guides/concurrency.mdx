@@ -3,7 +3,7 @@ title: "Concurrency"
 description: "How many jobs your workspace can run at the same time."
 ---
 
-Each workspace can have a limited number of unfinished (`queued` or `running`) jobs at the same time. The default limit is **3**.
+Each workspace can have a limited number of unfinished (`queued` or `running`) jobs at the same time. The default limit is **10**.
 
 Check your current usage and limit with `GET /account`:
 
@@ -11,7 +11,7 @@ Check your current usage and limit with `GET /account`:
 {
   "object": "account",
   "balance": { "amount_usd": "10.000000", "enabled": true },
-  "concurrency": { "active": 2, "limit": 3 }
+  "concurrency": { "active": 2, "limit": 10 }
 }
 ```
 
@@ -31,3 +31,5 @@ When the limit is reached, `POST /videos/generation` returns `429` with a `Retry
 Wait `Retry-After` seconds and retry with the same `Idempotency-Key` and body. For batch workloads, keep a local queue and submit a new job only when an earlier one reaches a final status.
 
 Contact [support@creatok.ai](mailto:support@creatok.ai) to request a higher limit.
+
+Query and upload endpoints currently have no dedicated API rate limit. This concurrency limit applies to unfinished generation jobs across all keys in your workspace. Model capacity is separate: a submission can return a failed Job with `model_busy`; its charge is refunded.

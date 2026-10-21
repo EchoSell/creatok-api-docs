@@ -1,0 +1,43 @@
+---
+title: "Files"
+description: "Upload reference images and videos before submitting a generation job."
+---
+
+`POST /files` creates a signed upload grant. Send JSON with the MIME type, file size in bytes, and filename. This endpoint does not receive the file bytes.
+
+```bash
+curl https://api.creatok.ai/v1/files \
+  -H "Authorization: Bearer $CREATOK_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"content_type":"image/jpeg","size":123456,"filename":"reference.jpg"}'
+```
+
+The response contains `file_id`, `upload_url`, `upload_fields`, and `expires_at`. Upload with a **multipart POST**, not PUT. Include every returned form field unchanged and append the `file` field last. Do not send your API key to the upload URL.
+
+```javascript Node.js
+import { readFile } from "node:fs/promises";
+
+const bytes = await readFile("reference.jpg");
+const response = await fetch("https://api.creatok.ai/v1/files", {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${process.env.CREATOK_API_KEY}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ content_type: "image/jpeg", size: bytes.length, filename: "reference.jpg" }),
+});
+if (!response.ok) throw new Error(await response.text());
+const grant = await response.json();
+const form = new FormData();
+for (const [key, value] of Object.entries(grant.upload_fields)) form.append(key, value);
+form.append("file", new Blob([bytes], { type: "image/jpeg" }), "reference.jpg");
+const upload = await fetch(grant.upload_url, { method: "POST", body: form });
+if (!upload.ok) throw new Error(await upload.text());
+console.log(grant.file_id); // Use in referenceImageKeys or firstFrameKey.
+```
+
+The signed grant expires after six hours. Image uploads are limited to 10 MiB; other uploads to 100 MiB. The storage service rejects uploads exceeding the signed limit. Model-specific restrictions can be stricter; see [Video models](/guides/video-models).
+
+Wait for a successful upload before submitting generation. Use the returned `file_id` or `upload_fields.key`; both refer to the same uploaded object and are scoped to your workspace. Video references go in `referenceVideoKeys`. Reference audio is not currently accepted by the generation request schema.
+
+Uploaded inputs are temporary. Submit promptly, and keep your originals in your own storage. An expired grant requires a new grant and upload. An accepted job retains its own copy of reference inputs.
