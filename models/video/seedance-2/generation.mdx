@@ -26,7 +26,7 @@ All three variants share the input fields, media modes, and media limits on this
 | [Multiple reference images](#multiple-reference-images) | `prompt`, `referenceImageKeys` | `reference` |
 | [Reference video](#reference-video) | `prompt`, `referenceVideoKeys` | `reference` |
 | [Images and video together](#images-and-video-together) | `prompt`, both reference arrays | `reference` |
-| [Reference audio](#reference-audio) | `prompt`, `referenceAudioKey` | `reference` |
+| [Reference image and audio](#reference-audio) | `prompt`, `referenceImageKeys`, `referenceAudioKey` | `reference` |
 | [Images, video, and audio](#images-video-and-audio) | `prompt`, both reference arrays, `referenceAudioKey` | `reference` |
 | [First frame](#first-frame) | `prompt`, `firstFrameKey` | `frame` |
 | [First and last frames](#first-and-last-frames) | `prompt`, `firstFrameKey`, `endFrameKey` | `frame` |
@@ -221,13 +221,16 @@ Combine visual references with video guidance. Do not add first/end-frame fields
   [Upload each reference file first](/guides/files). For audio, use its actual MIME type, such as `audio/mpeg` for MP3. Complete the multipart upload, then replace the sample IDs with the returned `file_id` values. `upload_fields.key` is also accepted.
 </Note>
 
-Use one uploaded audio file to guide the generation. A prompt is required. Audio input selects `reference` mode when `generationMode` is omitted.
+Seedance 2, Fast, and Mini require at least one reference image or video when you provide `referenceAudioKey`. Audio alone is rejected before generation. A prompt is also required. These rules apply to the Seedance 2 family; check each model's guide for its own input requirements.
 
 ```json
 {
   "model": "seedance-2",
   "input": {
-    "prompt": "A dancer moves in time with the reference audio",
+    "prompt": "Show the dancer from the reference image moving in time with the reference audio",
+    "referenceImageKeys": [
+      "file_11111111-1111-4111-8111-111111111111"
+    ],
     "referenceAudioKey": "file_44444444-4444-4444-8444-444444444444",
     "seconds": 4,
     "definition": "480p",
@@ -242,7 +245,7 @@ Use one uploaded audio file to guide the generation. A prompt is required. Audio
   [Upload each reference file first](/guides/files). For audio, use its actual MIME type, such as `audio/mpeg` for MP3. Complete the multipart upload, then replace the sample IDs with the returned `file_id` values. `upload_fields.key` is also accepted.
 </Note>
 
-Combine visual references with one audio reference. You can also use audio with only images or only videos by omitting the unused reference array. Do not add first/end-frame fields.
+Combine one audio reference with at least one image or video reference. You can omit either visual reference array, but do not omit both. Do not add first/end-frame fields.
 
 ```json
 {

@@ -59,7 +59,7 @@ Audit validation completed:
 
 - `mint validate`: passed, including OpenAPI validation.
 - `mint broken-links`: passed with no broken links.
-- Parsed every JSON code block and checked JavaScript and shell syntax. Forty generation examples, including the Seedance 2 family scenarios with Fast and Mini model substitutions, passed the app's request schema, input mapping, and model parameter validators. Media uploads and paid generation were not repeated.
+- Parsed every JSON code block and checked JavaScript and shell syntax. The earlier 47-case generation request audit predated the Seedance audio preflight rule and included a pure-audio example that is now corrected to include an image. Media uploads and paid generation were not repeated.
 - Previewed Quickstart, Files, Video models, Jobs, API overview, and generated generation/upload reference pages in Chrome. Also previewed the Seedance 2 family selection table and Seedance 2.5 adaptive editing section. Checked nested input fields, scenario anchors, navigation, and rendered code blocks. The local preview used port `3001` because `3000` was occupied.
 
 ## Reference audio sync (2026-10-22)
@@ -68,4 +68,8 @@ Synced the generated schema and guides against app commit `c1ac7786b`. `input.re
 
 The schema still reports version `1.1.0`; compare its contents, not only its version, when verifying deployment. The app checkout contained unrelated uncommitted worker/capacity changes, which were left untouched. This sync does not establish production availability or repeat paid generation tests.
 
-Validation: `mint validate` and `mint broken-links` passed. All 47 generation request examples and model variants passed the app's request schema, input mapping, and model parameter validators.
+Validation: `mint validate` and `mint broken-links` passed for the previous sync. The updated OpenAPI schema passes `mint validate`, and the updated docs pass `mint broken-links`. The app's pre-commit checks, including lint and TypeScript validation, passed for the validator change.
+
+## Seedance reference audio validation (2026-10-22)
+
+The previous sync incorrectly documented audio-only generation. Seedance 2, Fast, and Mini now reject `referenceAudioKey` unless the request also includes at least one reference image or video. This constraint is model-specific. The API preflight rejects the request before generation submission; audio upload and validation do not guarantee that a request can be generated. The Seedance examples and generated OpenAPI schema use image-plus-audio inputs.

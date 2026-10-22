@@ -50,7 +50,7 @@ console.log(grant.file_id); // Use in referenceImageKeys or firstFrameKey.
 
 The signed grant expires after six hours. Image uploads are limited to 10 MiB; other uploads to 100 MiB. The storage service rejects uploads exceeding the signed limit. Model-specific restrictions can be stricter; see [Video models](/guides/video-models).
 
-Wait for a successful upload before submitting generation. Use the returned `file_id` or `upload_fields.key`; both refer to the same uploaded object and are scoped to your workspace. Video references go in `referenceVideoKeys`. For Seedance 2, Fast, and Mini, pass one uploaded audio file in `referenceAudioKey`. Seedance 2.5 does not support reference audio.
+Wait for a successful upload before submitting generation. Use the returned `file_id` or `upload_fields.key`; both refer to the same uploaded object and are scoped to your workspace. Video references go in `referenceVideoKeys`. For Seedance 2, Fast, and Mini, pass one uploaded audio file in `referenceAudioKey` together with at least one reference image or video. Audio alone is rejected. Seedance 2.5 does not support reference audio. These constraints are model-specific; check each model guide.
 
 Uploaded inputs are temporary. Submit promptly, and keep your originals in your own storage. An expired grant requires a new grant and upload. An accepted job retains its own copy of reference inputs.
 
@@ -58,4 +58,4 @@ Uploaded inputs are temporary. Submit promptly, and keep your originals in your 
 
 Follow the same grant and multipart upload steps for audio. For an MP3 file, use `content_type: "audio/mpeg"`, the actual byte size, and its filename in `POST /files`. In the Node.js example above, read your audio file and use the same audio MIME type in the request and the `Blob`.
 
-Audio files must be nonempty, use an `audio/*` content type, and be at most 100 MiB. Complete the upload before passing the returned `file_id` as the single string `input.referenceAudioKey`. Do not pass an array or a public URL. See the [reference audio example](/models/video/seedance-2/generation#reference-audio).
+Audio files must be nonempty, use an `audio/*` content type, and be at most 100 MiB. Complete the upload before passing the returned `file_id` as the single string `input.referenceAudioKey`. Do not pass an array or a public URL. Seedance 2, Fast, and Mini also require a reference image or video in the same request. See the [Seedance 2 family reference audio example](/models/video/seedance-2/generation#reference-audio).

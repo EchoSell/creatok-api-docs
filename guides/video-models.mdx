@@ -62,7 +62,7 @@ Unknown fields at the request root or inside `input` return `400 invalid_paramet
 
 Upload each asset first. Replace the sample file IDs below with your own completed uploads.
 
-- Reference images/videos/audio select `reference` automatically when `generationMode` is omitted. You can combine reference images, reference videos, and one audio file on Seedance 2, Fast, and Mini.
+- Reference images/videos select `reference` automatically when `generationMode` is omitted. On Seedance 2, Fast, and Mini, you can add one audio file to at least one reference image or video. Audio alone is rejected. These requirements apply to the Seedance 2 family; other models can have different requirements.
 - `firstFrameKey` selects `frame` automatically. You cannot combine frames with reference images, videos, or audio or a different mode.
 - Set `generationMode: "edit"` explicitly for Seedance 2.5 editing. At least one reference video is required. Omit `seconds` and `orientation`; the first source video determines output duration and aspect ratio. `autoMatchVideoDuration` defaults to `true`; `false` is rejected. Output duration is not guaranteed to be frame-exact.
 
@@ -128,7 +128,7 @@ For multiple images without video, omit `referenceVideoKeys` from this example.
 }
 ```
 
-For audio-only and mixed image/video/audio requests, see the [Seedance 2 audio examples](/models/video/seedance-2/generation#reference-audio).
+For Seedance 2 family image/audio and mixed image/video/audio requests, see the [audio examples](/models/video/seedance-2/generation#reference-audio).
 
 ## Media limits
 
