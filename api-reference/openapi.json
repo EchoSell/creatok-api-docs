@@ -79,7 +79,7 @@
       "post": {
         "operationId": "createVideoGeneration",
         "summary": "Create a video generation job",
-        "description": "Generate from text, reference images/videos, or first/end frames. Seedance 2.5 also supports adaptive editing. Charges use estimated token usage and model/input-mode unit prices, not a fixed per-second rate. Reference video duration contributes to usage. See the console pricing page for current rates. Reuse the same Idempotency-Key and body to retrieve the original Job without another charge; changing the body with that key returns 409. The default workspace limit is 10 unfinished jobs. Always inspect Job.status, including on 202 responses.",
+        "description": "Generate from text, reference images/videos/audio, or first/end frames. Audio references are supported by Seedance 2, Mini, and Fast, but not Seedance 2.5. Seedance 2.5 also supports adaptive editing. Charges use estimated token usage and model/input-mode unit prices, not a fixed per-second rate. Reference video duration contributes to usage. See the console pricing page for current rates. Reuse the same Idempotency-Key and body to retrieve the original Job without another charge; changing the body with that key returns 409. The default workspace limit is 10 unfinished jobs. Always inspect Job.status, including on 202 responses.",
         "security": [
           {
             "ApiKey": []
@@ -135,6 +135,15 @@
                       "referenceVideoKeys": [
                         "file_22222222-2222-4222-8222-222222222222"
                       ]
+                    }
+                  }
+                },
+                "referenceAudio": {
+                  "value": {
+                    "model": "seedance-2-mini",
+                    "input": {
+                      "prompt": "Match the rhythm of the reference audio",
+                      "referenceAudioKey": "file_33333333-3333-4333-8333-333333333333"
                     }
                   }
                 },
@@ -608,6 +617,11 @@
                   "minLength": 1,
                   "description": "A file_id returned by POST /files, or its upload_fields.key. Must belong to the authenticated organization."
                 }
+              },
+              "referenceAudioKey": {
+                "description": "One uploaded reference audio file for Seedance 2, Mini, or Fast. Not supported by Seedance 2.5. Cannot be combined with first/end frames.",
+                "type": "string",
+                "minLength": 1
               },
               "firstFrameKey": {
                 "description": "Uploaded first-frame image; required in frame mode.",

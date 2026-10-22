@@ -18,6 +18,10 @@ Use `model: "seedance-2.5"` with `POST https://api.creatok.ai/v1/videos/generati
 | [First and last frames](#first-and-last-frames) | `prompt`, `firstFrameKey`, `endFrameKey` | `frame` |
 | [Adaptive video editing](#adaptive-video-editing) | `prompt`, `referenceVideoKeys` | Explicitly set `edit` |
 
+<Note>
+  Seedance 2.5 does not support `referenceAudioKey`. Use the [Seedance 2 family](/models/video/seedance-2/generation#reference-audio) for reference audio.
+</Note>
+
 ## Before you start
 
 Create an [organization API key](/guides/authentication) and fund your API wallet. For images or videos, complete the [signed upload flow](/guides/files) first. Replace each example `file_...` value with the returned `file_id`. You can also use the returned `upload_fields.key`.

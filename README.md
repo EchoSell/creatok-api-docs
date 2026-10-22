@@ -61,3 +61,11 @@ Audit validation completed:
 - `mint broken-links`: passed with no broken links.
 - Parsed every JSON code block and checked JavaScript and shell syntax. Forty generation examples, including the Seedance 2 family scenarios with Fast and Mini model substitutions, passed the app's request schema, input mapping, and model parameter validators. Media uploads and paid generation were not repeated.
 - Previewed Quickstart, Files, Video models, Jobs, API overview, and generated generation/upload reference pages in Chrome. Also previewed the Seedance 2 family selection table and Seedance 2.5 adaptive editing section. Checked nested input fields, scenario anchors, navigation, and rendered code blocks. The local preview used port `3001` because `3000` was occupied.
+
+## Reference audio sync (2026-10-22)
+
+Synced the generated schema and guides against app commit `c1ac7786b`. `input.referenceAudioKey` accepts one uploaded audio file for Seedance 2, Fast, and Mini. Seedance 2.5 and frame/audio combinations are rejected. Audio uploads use the existing Files flow and are limited to nonempty `audio/*` files of at most 100 MiB. No audio duration or codec guarantee is inferred from this validation.
+
+The schema still reports version `1.1.0`; compare its contents, not only its version, when verifying deployment. The app checkout contained unrelated uncommitted worker/capacity changes, which were left untouched. This sync does not establish production availability or repeat paid generation tests.
+
+Validation: `mint validate` and `mint broken-links` passed. All 47 generation request examples and model variants passed the app's request schema, input mapping, and model parameter validators.
