@@ -3,7 +3,7 @@ title: "Video models"
 description: "Supported Seedance models, input fields, limits, and how pricing works."
 ---
 
-Select a model with the `model` field of `POST /videos/generation`. All four models support text, reference images, reference videos, and first/end frames. Seedance 2, Fast, and Mini also support one reference audio file. Seedance 2.5 does not support reference audio, but supports editing with adaptive duration.
+Select a model with the `model` field of `POST /videos/generation`. All four models support text, reference images, reference videos, and first/end frames. Seedance 2, Fast, and Mini support up to three reference audio files; Seedance 2.5 supports up to ten. Seedance 2.5 additionally supports editing with adaptive duration.
 
 ## Models
 
@@ -35,7 +35,7 @@ Select a model with the `model` field of `POST /videos/generation`. All four mod
 | `seed` | string | — | Seed for more repeatable results. |
 | `referenceImageKeys` | string[] | — | Uploaded reference images. [Upload first](/guides/files), then use the returned `file_id`. |
 | `referenceVideoKeys` | string[] | — | Uploaded reference videos. [Upload first](/guides/files), then use the returned `file_id`. |
-| `referenceAudioKey` | string | — | One uploaded audio file for Seedance 2, Fast, or Mini. Not supported by Seedance 2.5. [Upload first](/guides/files#upload-reference-audio), then use the returned `file_id`. |
+| `referenceAudioKeys` | string[] | — | Uploaded reference audio files. Seedance 2, Fast, and Mini: up to 3 files, 2–15 seconds each, 15 seconds total. Seedance 2.5: up to 10 files, 2–30 seconds each, 30 seconds total. Seedance 2, Fast, and Mini also require at least one reference image or video. [Upload first](/guides/files#upload-reference-audio), then use the returned `file_id`. |
 | `firstFrameKey` | string | — | First-frame image; required in frame mode. [Upload first](/guides/files), then use the returned `file_id`. |
 | `endFrameKey` | string | — | Optional end-frame image; requires a first frame. [Upload first](/guides/files), then use the returned `file_id`. |
 | `generationMode` | string | inferred | `reference`, `frame`, or `edit`. |
@@ -62,7 +62,7 @@ Unknown fields at the request root or inside `input` return `400 invalid_paramet
 
 Upload each asset first. Replace the sample file IDs below with your own completed uploads.
 
-- Reference images/videos select `reference` automatically when `generationMode` is omitted. On Seedance 2, Fast, and Mini, you can add one audio file to at least one reference image or video. Audio alone is rejected. These requirements apply to the Seedance 2 family; other models can have different requirements.
+- Reference images/videos select `reference` automatically when `generationMode` is omitted. On Seedance 2, Fast, and Mini, reference audio requires at least one reference image or video in the same request; audio alone is rejected. Seedance 2.5 accepts audio-only reference requests. Audio limits differ per model — see the field table above.
 - `firstFrameKey` selects `frame` automatically. You cannot combine frames with reference images, videos, or audio or a different mode.
 - Set `generationMode: "edit"` explicitly for Seedance 2.5 editing. At least one reference video is required. Omit `seconds` and `orientation`; the first source video determines output duration and aspect ratio. `autoMatchVideoDuration` defaults to `true`; `false` is rejected. Output duration is not guaranteed to be frame-exact.
 
@@ -137,12 +137,14 @@ The upload limit and model limit both apply. Images are capped at **10 MiB** by 
 | Constraint | Seedance 2 / Mini / Fast | Seedance 2.5 |
 | --- | --- | --- |
 | Reference images | Up to 9 | Up to 30 |
-| Reference videos | Up to 3 | Up to 10; at most 40 combined reference items |
+| Reference videos | Up to 3 | Up to 10 |
+| Reference audio | Up to 3; 2–15 seconds each, 15 seconds total; requires an image or video | Up to 10; 2–30 seconds each, 30 seconds total |
+| Combined reference items | At most 15 across images, videos, and audio | At most 50 across images, videos, and audio |
 | Video duration | 2–15 seconds each, at most 15 seconds total | 2–30 seconds each, at most 30 seconds total; edit requires at least 4 seconds |
 | Video dimensions | 300–6000 pixels per side; 409,600–927,408 total pixels | 300–6000 pixels per side; 409,600–8,295,044 total pixels |
 | Video frame rate | 23–60 fps | 23–60 fps |
 
-Reference audio is limited to one nonempty file of at most 100 MiB, uploaded with an `audio/*` content type.
+Reference audio accepts WAV or MP3. The upload grant allows up to 100 MiB per file, but the models enforce a stricter **15 MiB** limit per audio file at submission, alongside the duration limits above.
 
 Images must be 300–6000 pixels per side. Images and videos must have an aspect ratio between 0.4 and 2.5. Videos use MP4 or MOV. Images use JPEG, PNG, or WebP; Seedance 2.5 also accepts BMP, TIFF, GIF, HEIC, and HEIF. The server validates actual media metadata before charging; an upload grant alone does not guarantee the model can use the file.
 

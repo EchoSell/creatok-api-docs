@@ -14,17 +14,18 @@ Use `model: "seedance-2.5"` with `POST https://api.creatok.ai/v1/videos/generati
 | [Multiple reference images](#multiple-reference-images) | `prompt`, `referenceImageKeys` | `reference` |
 | [Reference video](#reference-video) | `prompt`, `referenceVideoKeys` | `reference` |
 | [Images and video together](#images-and-video-together) | `prompt`, both reference arrays | `reference` |
+| [Reference audio](#reference-audio) | `prompt`, `referenceAudioKeys` | `reference` |
 | [First frame](#first-frame) | `prompt`, `firstFrameKey` | `frame` |
 | [First and last frames](#first-and-last-frames) | `prompt`, `firstFrameKey`, `endFrameKey` | `frame` |
 | [Adaptive video editing](#adaptive-video-editing) | `prompt`, `referenceVideoKeys` | Explicitly set `edit` |
 
 <Note>
-  Seedance 2.5 does not support `referenceAudioKey`. Use the [Seedance 2 family](/models/video/seedance-2/generation#reference-audio) for reference audio.
+  Seedance 2.5 accepts up to 10 reference audio files without a visual reference. Audio cannot be combined with first/end-frame fields. The [Seedance 2 family](/models/video/seedance-2/generation#reference-audio) has different audio limits and requires an image or video alongside audio.
 </Note>
 
 ## Before you start
 
-Create an [organization API key](/guides/authentication) and fund your API wallet. For images or videos, complete the [signed upload flow](/guides/files) first. Replace each example `file_...` value with the returned `file_id`. You can also use the returned `upload_fields.key`.
+Create an [organization API key](/guides/authentication) and fund your API wallet. For images, videos, or audio, complete the [signed upload flow](/guides/files) first. Replace each example `file_...` value with the returned `file_id`. You can also use the returned `upload_fields.key`.
 
 <Note>
   These examples use the CreatOK request format. Put generation parameters inside `input`. Media fields accept uploaded file identifiers, not public URLs, base64 strings, or `asset://` identifiers. A prompt is required in every mode.
@@ -44,6 +45,7 @@ Use these fields inside `input`:
 | `orientation` | string | `21:9`, `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, or `auto`. Defaults to `9:16` for text/reference modes. Omit in frame and edit modes; those modes use the source aspect ratio. |
 | `referenceImageKeys` | string[] | Up to 30 uploaded images. [Upload first](/guides/files), then use the returned `file_id`. |
 | `referenceVideoKeys` | string[] | Up to 10 uploaded videos. [Upload first](/guides/files), then use the returned `file_id`. |
+| `referenceAudioKeys` | string[] | Up to 10 uploaded audio files, 2–30 seconds each and at most 30 seconds total, 15 MiB per file, WAV or MP3. [Upload first](/guides/files#upload-reference-audio), then use the returned `file_id`. Cannot be combined with frames. |
 | `firstFrameKey` | string | An uploaded image; required in frame mode. [Upload first](/guides/files), then use the returned `file_id`. |
 | `endFrameKey` | string | An uploaded image; requires `firstFrameKey`. [Upload first](/guides/files), then use the returned `file_id`. |
 | `generationMode` | string | `reference` or `frame` or `edit`. Reference/frame mode is inferred from the media fields when omitted. |
@@ -65,9 +67,10 @@ Unknown fields are rejected with `400 invalid_parameter`. The API does not accep
 | Video duration | 2–30 seconds per video, at most 30 seconds total in reference mode; each video must be at least 4 seconds in edit mode |
 | Video dimensions | 300–6000 pixels per side; 409,600–8,295,044 total pixels |
 | Video frame rate | 23–60 fps |
+| Reference audio | Up to 10 files, 2–30 seconds each, at most 30 seconds total, 15 MiB per file, WAV or MP3 |
 | Image and video aspect ratio | 0.4–2.5 |
 
-You can combine up to 30 images and 10 videos, with at most 40 reference items in total.
+You can combine up to 30 images, 10 videos, and 10 audio files, with at most 50 reference items in total.
 
 The server checks uploaded media before charging. A successful upload does not guarantee that a file meets the model's requirements. Frame images follow the same image restrictions as reference images.
 
@@ -203,6 +206,31 @@ Combine visual references with video guidance. Do not add first/end-frame fields
   }
 }
 ```
+
+## Reference audio
+
+<Note>
+  [Upload each reference file first](/guides/files). For audio, use its actual MIME type, such as `audio/mpeg` for MP3. Complete the multipart upload, then replace the sample IDs with the returned `file_id` values. `upload_fields.key` is also accepted.
+</Note>
+
+Seedance 2.5 accepts up to 10 reference audio files, 2–30 seconds each and at most 30 seconds in total, 15 MiB per file, WAV or MP3. Unlike the Seedance 2 family, no reference image or video is required — audio alone is a valid reference request. Do not add first/end-frame fields to an audio request.
+
+```json
+{
+  "model": "seedance-2.5",
+  "input": {
+    "prompt": "A singer performs the melody from the reference audio on a candlelit stage",
+    "referenceAudioKeys": [
+      "file_44444444-4444-4444-8444-444444444444"
+    ],
+    "seconds": 4,
+    "definition": "480p",
+    "orientation": "16:9"
+  }
+}
+```
+
+You can combine audio with reference images or videos in the same request. All reference items together are limited to 50.
 
 ## First frame
 
