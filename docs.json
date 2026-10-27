@@ -49,6 +49,12 @@
               "guides/concurrency",
               "guides/files"
             ]
+          },
+          {
+            "group": "Video tools",
+            "pages": [
+              "guides/video-cleaning"
+            ]
           }
         ]
       },
@@ -88,7 +94,9 @@
             "group": "Videos",
             "openapi": "api-reference/openapi.json",
             "pages": [
-              "POST /videos/generation"
+              "POST /videos/generation",
+              "POST /videos/remove-subtitles",
+              "POST /videos/remove-watermarks"
             ]
           },
           {

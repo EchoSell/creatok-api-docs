@@ -73,3 +73,9 @@ Validation: `mint validate` and `mint broken-links` passed for the previous sync
 ## Seedance reference audio validation (2026-10-22)
 
 The previous sync incorrectly documented audio-only generation. Seedance 2, Fast, and Mini now reject `referenceAudioKey` unless the request also includes at least one reference image or video. This constraint is model-specific. The API preflight rejects the request before generation submission; audio upload and validation do not guarantee that a request can be generated. The Seedance examples and generated OpenAPI schema use image-plus-audio inputs.
+
+## Video cleaning API sync (2026-10-27)
+
+Added `POST /videos/remove-subtitles` and `POST /videos/remove-watermarks` to the generated OpenAPI schema and the video-cleaning guide. Exported from the app worktree at `e9fa44ac` plus its uncommitted endpoint implementation. The app's implementation note reports a local end-to-end check for each operation; this does not establish production deployment. The API introduction continues to label the production API as pending. The schema version remains `1.1.0`, so compare its paths and fields rather than relying on the version alone.
+
+Removed the exact per-second cleaner price and storage vendor name from the exported OpenAPI descriptions. Pricing links point to the console price page. `mint validate` and `mint broken-links` passed for this sync.

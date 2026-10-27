@@ -14,8 +14,8 @@
     "/files": {
       "post": {
         "operationId": "createFileUpload",
-        "summary": "Create a size-limited TOS upload grant",
-        "description": "Upload with multipart/form-data POST, include every returned upload_fields entry, and put the file field last. TOS enforces the signed size limit: 10 MiB for image content types, 100 MiB otherwise. The grant expires after six hours. Finish uploading before referencing file_id or upload_fields.key in generation input. Upload success does not guarantee model compatibility; generation validates media type, dimensions, duration and model-specific limits.",
+        "summary": "Create a size-limited file upload grant",
+        "description": "Upload with multipart/form-data POST, include every returned upload_fields entry, and put the file field last. The storage service enforces the signed size limit: 10 MiB for image content types, 100 MiB otherwise. The grant expires after six hours. Finish uploading before referencing file_id or upload_fields.key in generation input. Upload success does not guarantee model compatibility; generation validates media type, dimensions, duration and model-specific limits.",
         "security": [
           {
             "ApiKey": []
@@ -33,7 +33,7 @@
         },
         "responses": {
           "200": {
-            "description": "A signed TOS POST upload form and its object identifier.",
+            "description": "A signed multipart POST upload form and its object identifier.",
             "content": {
               "application/json": {
                 "schema": {
@@ -75,11 +75,243 @@
         }
       }
     },
+    "/videos/remove-subtitles": {
+      "post": {
+        "operationId": "removeVideoSubtitles",
+        "summary": "Remove burned-in subtitles from a selected area",
+        "description": "Submit an asynchronous video cleaning job. Upload with POST /files first. Supported videos: MP4, MOV, AVI, WebM and MKV, 1–60 seconds, at most 50 MiB. Subtitle removal requires selected_area with normalized coordinates in [0,1]; watermark removal processes the full frame. Media properties are inspected by the server. Pricing is based on server-inspected source duration. See https://www.creatok.ai/app/api-platform/pricing for current rates. Reuse the same Idempotency-Key and body after a timeout. Poll GET /jobs/{jobId}; outputs expire 48 hours after completion. Always inspect Job.status, including on 202 responses.",
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubtitleRemovalRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted Job, or original Job on idempotent replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/videos/remove-watermarks": {
+      "post": {
+        "operationId": "removeVideoWatermarks",
+        "summary": "Remove watermarks from a video",
+        "description": "Submit an asynchronous video cleaning job. Upload with POST /files first. Supported videos: MP4, MOV, AVI, WebM and MKV, 1–60 seconds, at most 50 MiB. Subtitle removal requires selected_area with normalized coordinates in [0,1]; watermark removal processes the full frame. Media properties are inspected by the server. Pricing is based on server-inspected source duration. See https://www.creatok.ai/app/api-platform/pricing for current rates. Reuse the same Idempotency-Key and body after a timeout. Poll GET /jobs/{jobId}; outputs expire 48 hours after completion. Always inspect Job.status, including on 202 responses.",
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WatermarkRemovalRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted Job, or original Job on idempotent replay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/videos/generation": {
       "post": {
         "operationId": "createVideoGeneration",
         "summary": "Create a video generation job",
-        "description": "Generate from text, reference images/videos/audio, or first/end frames. Seedance 2, Mini, and Fast require at least one reference image or video when you provide audio; audio alone is rejected. Other models can have different requirements. Seedance 2.5 also supports adaptive editing. Charges use estimated token usage and model/input-mode unit prices, not a fixed per-second rate. Reference video duration contributes to usage. See the console pricing page for current rates. Reuse the same Idempotency-Key and body to retrieve the original Job without another charge; changing the body with that key returns 409. The default workspace limit is 10 unfinished jobs. Always inspect Job.status, including on 202 responses.",
+        "description": "Generate from text, reference images/videos/audio, or first/end frames. Seedance 2, Mini, and Fast require at least one reference image or video when you provide audio; audio alone is rejected. Other models can have different requirements. Seedance 2.5 also supports adaptive editing. Charges use estimated token usage and model/input-mode unit prices, not a fixed per-second rate. Reference video duration contributes to usage. See https://www.creatok.ai/app/api-platform/pricing for current rates. Reuse the same Idempotency-Key and body to retrieve the original Job without another charge; changing the body with that key returns 409. The default workspace limit is 10 unfinished jobs. Always inspect Job.status, including on 202 responses.",
         "security": [
           {
             "ApiKey": []
@@ -577,7 +809,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 128,
-            "description": "Public model ID: seedance-2.5, seedance-2, seedance-2-fast, seedance-2-mini. Only these models are accepted."
+            "description": "Public model ID: seedance-2-mini, seedance-2-fast, seedance-2, seedance-2.5. Only these models are accepted."
           },
           "input": {
             "type": "object",
@@ -676,6 +908,111 @@
         },
         "required": [
           "model",
+          "input"
+        ],
+        "additionalProperties": false
+      },
+      "SubtitleRemovalRequest": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "max_cost_usd": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,6})?$"
+          },
+          "metadata": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          },
+          "input": {
+            "type": "object",
+            "properties": {
+              "video": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512,
+                "description": "file_id from POST /files, or its upload_fields.key; must belong to the authenticated organization."
+              },
+              "selected_area": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "width": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1
+                  },
+                  "height": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "width",
+                  "height"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "video",
+              "selected_area"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "input"
+        ],
+        "additionalProperties": false
+      },
+      "WatermarkRemovalRequest": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "max_cost_usd": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,6})?$"
+          },
+          "metadata": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          },
+          "input": {
+            "type": "object",
+            "properties": {
+              "video": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512,
+                "description": "file_id from POST /files, or its upload_fields.key; must belong to the authenticated organization."
+              }
+            },
+            "required": [
+              "video"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
           "input"
         ],
         "additionalProperties": false
