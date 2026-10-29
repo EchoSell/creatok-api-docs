@@ -82,4 +82,4 @@ Removed the exact per-second cleaner price and storage vendor name from the expo
 
 ## Veo 3.1 API sync (2026-10-29)
 
-Added the five public Veo 3.1 model IDs to the video model overview, a dedicated generation guide, navigation, and the generated OpenAPI schema. The export came from the current app worktree, where the corresponding OpenAPI/model changes were staged but not committed. Do not treat this docs sync as evidence that production accepts these models.
+Added the five public Veo 3.1 model IDs to the video model overview, a dedicated generation guide, navigation, and the generated OpenAPI schema. App commit `e69927085` added the Veo family, and later local changes renamed the public IDs. This sync reflects the current app worktree. It does not establish that production accepts these models.

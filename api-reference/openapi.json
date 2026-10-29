@@ -809,7 +809,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 128,
-            "description": "Public model ID: seedance-2-mini, seedance-2-fast, seedance-2, seedance-2.5, veo-3.1-lite-exp, veo-3.1-exp, veo-3.1-fast-exp, veo-3.1, veo-3.1-fast. Only these models are accepted."
+            "description": "Public model ID: seedance-2-mini, seedance-2-fast, seedance-2, seedance-2.5, veo-3.1-lite, veo-3.1, veo-3.1-fast, veo-3.1-official, veo-3.1-fast-official. Only these models are accepted."
           },
           "input": {
             "type": "object",
