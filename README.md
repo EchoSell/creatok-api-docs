@@ -7,7 +7,7 @@ Public developer documentation for the CreatOK API, built with [Mintlify](https:
 - `docs.json`: site configuration and navigation
 - `index.mdx`, `quickstart.mdx`: getting started
 - `guides/`: authentication, files, jobs, idempotency, errors, concurrency, and model comparison
-- `models/video/`: Seedance 2 family and Seedance 2.5 scenario guides
+- `models/video/`: Seedance and Veo model generation guides
 - `api-reference/openapi.json`: generated OpenAPI 3.1 specification
 - `scripts/sync-openapi.mjs`: export the specification from an app checkout
 
@@ -79,3 +79,7 @@ The previous sync incorrectly documented audio-only generation. Seedance 2, Fast
 Added `POST /videos/remove-subtitles` and `POST /videos/remove-watermarks` to the generated OpenAPI schema and the video-cleaning guide. Exported from the app worktree at `e9fa44ac` plus its uncommitted endpoint implementation. The app's implementation note reports a local end-to-end check for each operation; this does not establish production deployment. The API introduction continues to label the production API as pending. The schema version remains `1.1.0`, so compare its paths and fields rather than relying on the version alone.
 
 Removed the exact per-second cleaner price and storage vendor name from the exported OpenAPI descriptions. Pricing links point to the console price page. `mint validate` and `mint broken-links` passed for this sync.
+
+## Veo 3.1 API sync (2026-10-29)
+
+Added the five public Veo 3.1 model IDs to the video model overview, a dedicated generation guide, navigation, and the generated OpenAPI schema. The export came from the current app worktree, where the corresponding OpenAPI/model changes were staged but not committed. Do not treat this docs sync as evidence that production accepts these models.

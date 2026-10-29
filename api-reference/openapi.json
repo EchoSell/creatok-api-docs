@@ -311,7 +311,7 @@
       "post": {
         "operationId": "createVideoGeneration",
         "summary": "Create a video generation job",
-        "description": "Generate from text, reference images/videos/audio, or first/end frames. Seedance 2, Mini, and Fast require at least one reference image or video when you provide audio; audio alone is rejected. Other models can have different requirements. Seedance 2.5 also supports adaptive editing. Charges use estimated token usage and model/input-mode unit prices, not a fixed per-second rate. Reference video duration contributes to usage. See https://www.creatok.ai/app/api-platform/pricing for current rates. Reuse the same Idempotency-Key and body to retrieve the original Job without another charge; changing the body with that key returns 409. The default workspace limit is 10 unfinished jobs. Always inspect Job.status, including on 202 responses.",
+        "description": "Generate from text, reference images/videos/audio, or first/end frames. Seedance 2, Mini, and Fast require at least one reference image or video when you provide audio; audio alone is rejected. Veo models support text, first/end frames, and model-specific reference images. Seedance 2.5 also supports adaptive editing. Seedance charges use estimated token usage; Veo charges use model-specific output-second rates. Reference video duration contributes to Seedance usage. See https://www.creatok.ai/app/api-platform/pricing for current rates. Reuse the same Idempotency-Key and body to retrieve the original Job without another charge; changing the body with that key returns 409. The default workspace limit is 10 unfinished jobs. Always inspect Job.status, including on 202 responses.",
         "security": [
           {
             "ApiKey": []
@@ -809,7 +809,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 128,
-            "description": "Public model ID: seedance-2-mini, seedance-2-fast, seedance-2, seedance-2.5. Only these models are accepted."
+            "description": "Public model ID: seedance-2-mini, seedance-2-fast, seedance-2, seedance-2.5, veo-3.1-lite-exp, veo-3.1-exp, veo-3.1-fast-exp, veo-3.1, veo-3.1-fast. Only these models are accepted."
           },
           "input": {
             "type": "object",
@@ -820,15 +820,15 @@
                 "description": "Required description of the requested video."
               },
               "orientation": {
-                "description": "21:9, 16:9, 4:3, 1:1, 3:4, 9:16, or auto. Defaults to 9:16 for text/reference modes. Omit in Seedance 2.5 frame and edit modes.",
+                "description": "21:9, 16:9, 4:3, 1:1, 3:4, 9:16, or auto. Defaults to the selected model's default (9:16 for text/reference modes). Omit in Seedance 2.5 frame and edit modes.",
                 "type": "string"
               },
               "seconds": {
-                "description": "Integer output duration: 4–15 seconds, or 4–30 for Seedance 2.5. Defaults to 4. In edit mode omit this field: duration follows the source video.",
+                "description": "Integer output duration supported by the selected model. Seedance defaults to 4 seconds; Veo models currently support 8 seconds. In edit mode omit this field: duration follows the source video.",
                 "type": "number"
               },
               "definition": {
-                "description": "Defaults to 480p. Seedance 2 supports 480p/720p/1080p/4k; 2.5 supports 480p/720p/1080p; Mini and Fast support 480p/720p.",
+                "description": "Defaults to the selected model's default. Seedance 2 supports 480p/720p/1080p/4k; 2.5 supports 480p/720p/1080p; Mini and Fast support 480p/720p; Veo supports 720p/1080p, and Veo 3.1 Lite also supports 4k.",
                 "type": "string"
               },
               "watermark": {

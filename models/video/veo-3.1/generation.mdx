@@ -1,0 +1,105 @@
+---
+title: "Veo 3.1"
+description: "Generate 8-second videos with Veo 3.1 variants using text, frames, or supported reference images."
+---
+
+Use one of the public Veo model IDs with `POST https://api.creatok.ai/v1/videos/generation`. Every variant currently generates an 8-second video. Veo does not accept reference videos, reference audio, or adaptive editing.
+
+## Choose a variant
+
+| Variant | `model` | Resolutions | Reference images |
+| --- | --- | --- | --- |
+| Veo 3.1 Lite | `veo-3.1-lite-exp` | `720p`, `1080p`, `4k` | Not supported |
+| Veo 3.1 (Exp) | `veo-3.1-exp` | `720p`, `1080p` | Not supported |
+| Veo 3.1 Fast (Exp) | `veo-3.1-fast-exp` | `720p`, `1080p` | Up to 3 |
+| Veo 3.1 | `veo-3.1` | `720p`, `1080p` | Up to 3 |
+| Veo 3.1 Fast | `veo-3.1-fast` | `720p`, `1080p` | Up to 3 |
+
+All variants accept `9:16` and `16:9`, defaulting to `9:16`. They default to `720p`. The server rejects unsupported resolutions, durations, and orientations for the selected model.
+
+## Before you start
+
+Create an [organization API key](/guides/authentication) and fund your API wallet. For reference images or frames, complete the [signed upload flow](/guides/files) first. Replace each example `file_...` value with the returned `file_id`. You can also use the returned `upload_fields.key`.
+
+<Note>
+  These examples use the CreatOK request format. Put generation parameters inside `input`. Do not send public URLs or base64 image data. The `veo-3.1-fast` variant accepts JPEG or PNG input images.
+</Note>
+
+## Text to video
+
+```json
+{
+  "model": "veo-3.1",
+  "input": {
+    "prompt": "A paper lantern floats above a still lake at dusk, slow tracking shot",
+    "seconds": 8,
+    "definition": "720p",
+    "orientation": "16:9"
+  }
+}
+```
+
+## Reference images
+
+Only `veo-3.1`, `veo-3.1-fast`, and `veo-3.1-fast-exp` accept reference images. Upload up to three images. Do not combine reference images with first/end frames. The Lite and non-Fast Exp variants do not accept `referenceImageKeys`.
+
+```json
+{
+  "model": "veo-3.1-fast",
+  "input": {
+    "prompt": "Show the product from the reference image on a sunlit kitchen counter",
+    "referenceImageKeys": [
+      "file_11111111-1111-4111-8111-111111111111"
+    ],
+    "seconds": 8,
+    "definition": "720p",
+    "orientation": "16:9"
+  }
+}
+```
+
+## First and last frames
+
+All variants accept a first frame and an optional end frame. Upload both images first. An end frame requires a first frame. Do not combine frame inputs with `referenceImageKeys`.
+
+```json
+{
+  "model": "veo-3.1-fast-exp",
+  "input": {
+    "prompt": "Move smoothly from the opening view to the final view",
+    "generationMode": "frame",
+    "firstFrameKey": "file_11111111-1111-4111-8111-111111111111",
+    "endFrameKey": "file_33333333-3333-4333-8333-333333333333",
+    "seconds": 8,
+    "definition": "720p",
+    "orientation": "16:9"
+  }
+}
+```
+
+## Common parameters
+
+| Field | Veo rules |
+| --- | --- |
+| `prompt` | Required. Describe the subject, action, and scene. |
+| `seconds` | Only `8` is supported. |
+| `definition` | `720p` or `1080p`; `veo-3.1-lite-exp` also accepts `4k`. |
+| `orientation` | `9:16` or `16:9`; defaults to `9:16`. |
+| `referenceImageKeys` | Up to 3 images for `veo-3.1`, `veo-3.1-fast`, and `veo-3.1-fast-exp` only. |
+| `firstFrameKey` | Required when you use frame mode. |
+| `endFrameKey` | Optional; requires `firstFrameKey`. |
+| `generationMode` | Omit to infer the mode, or set `reference` or `frame`. |
+| `referenceVideoKeys`, `referenceAudioKeys` | Not supported. |
+| `autoMatchVideoDuration` | Not supported. |
+
+Unknown fields return `400 invalid_parameter`. See [Errors](/guides/errors) for error handling.
+
+## Pricing
+
+Veo pricing depends on the selected variant and output resolution. Check the current rates on the [pricing page](https://www.creatok.ai/app/api-platform/pricing). Set `max_cost_usd` in your request to reject a quote above your spending limit.
+
+## Read the result
+
+HTTP `202` returns a job directly. Read its `id` and `status`; a submission can already have `status: "failed"`. While the job is `queued` or `running`, wait for `Retry-After` seconds before polling [`GET /jobs/{jobId}`](/api-reference/retrieve-a-job). On success, download the result from `output.files`. Signed output URLs expire after about one hour; outputs are removed 48 hours after completion.
+
+Reuse the same `Idempotency-Key` and exact request body after a timeout. See [Idempotency](/guides/idempotency) for retry behavior.
