@@ -3,7 +3,7 @@ title: "Veo 3.1"
 description: "Generate 8-second videos with Veo 3.1 variants using text, frames, or supported reference images."
 ---
 
-Use one of the public Veo model IDs with `POST https://api.creatok.ai/v1/videos/generation`. Every variant currently generates an 8-second video. Veo does not accept reference videos, reference audio, or adaptive editing.
+Use one of the public Veo model IDs with `POST https://api.creatok.ai/v1/videos/generation`. Every variant currently generates an 8-second video. Veo does not accept reference videos, reference audio, or adaptive editing. All variants support generated audio; use `generateAudio` to disable it.
 
 ## Choose a variant
 
@@ -11,16 +11,16 @@ Use one of the public Veo model IDs with `POST https://api.creatok.ai/v1/videos/
 
 | Variant | `model` | Resolutions | Reference images |
 | --- | --- | --- | --- |
-| Veo 3.1 Lite | `veo-3.1-lite` | `720p`, `1080p`, `4k` | Not supported |
-| Veo 3.1 | `veo-3.1` | `720p`, `1080p` | Not supported |
-| Veo 3.1 Fast | `veo-3.1-fast` | `720p`, `1080p` | Up to 3 |
+| Veo 3.1 | `veo-3.1` | `720p`, `1080p`, `4k` | Up to 3 |
+| Veo 3.1 Fast | `veo-3.1-fast` | `720p`, `1080p`, `4k` | Up to 3 |
 
-### Veo 3.1 Official
+### Veo 3.1 Exp
 
 | Variant | `model` | Resolutions | Reference images |
 | --- | --- | --- | --- |
-| Veo 3.1 Official | `veo-3.1-official` | `720p`, `1080p` | Up to 3 |
-| Veo 3.1 Fast Official | `veo-3.1-fast-official` | `720p`, `1080p` | Up to 3 |
+| Veo 3.1 Lite Exp | `veo-3.1-lite-exp` | `720p`, `1080p`, `4k` | Not supported |
+| Veo 3.1 Exp | `veo-3.1-exp` | `720p`, `1080p`, `4k` | Not supported |
+| Veo 3.1 Fast Exp | `veo-3.1-fast-exp` | `720p`, `1080p`, `4k` | Up to 3 |
 
 All variants accept `9:16` and `16:9`, defaulting to `9:16`. They default to `720p`. The server rejects unsupported resolutions, durations, and orientations for the selected model.
 
@@ -29,7 +29,7 @@ All variants accept `9:16` and `16:9`, defaulting to `9:16`. They default to `72
 Create an [organization API key](/guides/authentication) and fund your API wallet. For reference images or frames, complete the [signed upload flow](/guides/files) first. Replace each example `file_...` value with the returned `file_id`. You can also use the returned `upload_fields.key`.
 
 <Note>
-  These examples use the CreatOK request format. Put generation parameters inside `input`. Do not send public URLs or base64 image data. The `veo-3.1-fast-official` variant accepts JPEG or PNG input images.
+  These examples use the CreatOK request format. Put generation parameters inside `input`. Do not send public URLs or base64 image data. The `veo-3.1-fast` variant accepts JPEG or PNG input images.
 </Note>
 
 ## Text to video
@@ -41,14 +41,15 @@ Create an [organization API key](/guides/authentication) and fund your API walle
     "prompt": "A paper lantern floats above a still lake at dusk, slow tracking shot",
     "seconds": 8,
     "definition": "720p",
-    "orientation": "16:9"
+    "orientation": "16:9",
+    "generateAudio": false
   }
 }
 ```
 
 ## Reference images
 
-Only `veo-3.1-fast`, `veo-3.1-official`, and `veo-3.1-fast-official` accept reference images. Upload up to three images. Do not combine reference images with first/end frames. `veo-3.1-lite` and `veo-3.1` do not accept `referenceImageKeys`.
+Only `veo-3.1`, `veo-3.1-fast`, and `veo-3.1-fast-exp` accept reference images. Upload up to three images. Do not combine reference images with first/end frames. `veo-3.1-lite-exp` and `veo-3.1-exp` do not accept `referenceImageKeys`.
 
 ```json
 {
@@ -71,7 +72,7 @@ All variants accept a first frame and an optional end frame. Upload both images 
 
 ```json
 {
-  "model": "veo-3.1-fast-official",
+  "model": "veo-3.1-fast",
   "input": {
     "prompt": "Move smoothly from the opening view to the final view",
     "generationMode": "frame",
@@ -90,9 +91,10 @@ All variants accept a first frame and an optional end frame. Upload both images 
 | --- | --- |
 | `prompt` | Required. Describe the subject, action, and scene. |
 | `seconds` | Only `8` is supported. |
-| `definition` | `720p` or `1080p`; `veo-3.1-lite` also accepts `4k`. |
+| `definition` | `720p`, `1080p`, or `4k` for all Veo variants. |
 | `orientation` | `9:16` or `16:9`; defaults to `9:16`. |
-| `referenceImageKeys` | Up to 3 images for `veo-3.1-fast`, `veo-3.1-official`, and `veo-3.1-fast-official` only. |
+| `generateAudio` | Whether to generate audio. Defaults to `true`. Set to `false` to disable generated audio. |
+| `referenceImageKeys` | Up to 3 images for `veo-3.1`, `veo-3.1-fast`, and `veo-3.1-fast-exp` only. |
 | `firstFrameKey` | Required when you use frame mode. |
 | `endFrameKey` | Optional; requires `firstFrameKey`. |
 | `generationMode` | Omit to infer the mode, or set `reference` or `frame`. |
@@ -103,7 +105,7 @@ Unknown fields return `400 invalid_parameter`. See [Errors](/guides/errors) for 
 
 ## Pricing
 
-Veo pricing depends on the selected variant and output resolution. Check the current rates on the [pricing page](https://www.creatok.ai/app/api-platform/pricing). Set `max_cost_usd` in your request to reject a quote above your spending limit.
+Veo pricing depends on the selected variant, output resolution, and—on `veo-3.1` and `veo-3.1-fast`—whether you generate audio. Exp variants currently use the same rate with either audio setting. Check current rates on the [pricing page](https://www.creatok.ai/app/api-platform/pricing). Set `max_cost_usd` in your request to reject a quote above your spending limit.
 
 ## Read the result
 

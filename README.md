@@ -83,3 +83,11 @@ Removed the exact per-second cleaner price and storage vendor name from the expo
 ## Veo 3.1 API sync (2026-10-29)
 
 Added the five public Veo 3.1 model IDs to the video model overview, a dedicated generation guide, navigation, and the generated OpenAPI schema. App commit `e69927085` added the Veo family, and later local changes renamed the public IDs. This sync reflects the current app worktree. It does not establish that production accepts these models.
+
+## Veo model ID sync (2026-10-30)
+
+Refreshed the generated OpenAPI schema and Veo docs to match the API contract at local app branch `feat/openapi` commit `4fc86bbae`. Public IDs match the web model names: the Veo 3.1 group uses IDs without a suffix, while Exp variants end in `-exp`. The guide reflects reference-image support for `veo-3.1`, `veo-3.1-fast`, and `veo-3.1-fast-exp`.
+
+## Veo audio and resolution sync (2026-10-30)
+
+The local app branch adds the `input.generateAudio` setting for Veo, defaults it to `true`, and accepts `4k` for all five Veo IDs through the API-specific capability set. Pricing for `veo-3.1` and `veo-3.1-fast` varies with the audio setting; Exp rates do not. The local `feat/openapi` branch is two commits ahead of `origin/feat/openapi` (`032c17cae` and `4fc86bbae`) and has not been verified in production. This docs sync reflects that local branch tip.

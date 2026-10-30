@@ -3,7 +3,7 @@ title: "Video models"
 description: "Supported Seedance and Veo models, input fields, limits, and pricing guidance."
 ---
 
-Select a public model ID with the `model` field of `POST /videos/generation`. The Seedance and Veo families have different inputs and limits. All models support text prompts and first/end frames. Seedance models support reference videos and audio. Veo models do not support reference videos or audio; only some variants accept reference images.
+Select a public model ID with the `model` field of `POST /videos/generation`. The Seedance and Veo families have different inputs and limits. All models support text prompts and first/end frames. Seedance models support reference videos and audio. Veo models do not support reference videos or reference audio; only some variants accept reference images. Veo models support generated audio, which you can control with `generateAudio`.
 
 ## Models
 
@@ -16,22 +16,22 @@ Select a public model ID with the `model` field of `POST /videos/generation`. Th
 
 ## Veo 3.1 models
 
-All Veo variants currently generate 8-second videos. They support `720p` or `1080p`; `veo-3.1-lite` also supports `4k`. Their supported orientations are `9:16` and `16:9`, with `9:16` as the default.
+All Veo variants currently generate 8-second videos. They support `720p`, `1080p`, and `4k`. Their supported orientations are `9:16` and `16:9`, with `9:16` as the default.
 
 ### Veo 3.1
 
 | Variant | `model` | Resolutions | Reference images |
 | --- | --- | --- | --- |
-| Veo 3.1 Lite | `veo-3.1-lite` | `720p`, `1080p`, `4k` | Not supported |
-| Veo 3.1 | `veo-3.1` | `720p`, `1080p` | Not supported |
-| Veo 3.1 Fast | `veo-3.1-fast` | `720p`, `1080p` | Up to 3 |
+| Veo 3.1 | `veo-3.1` | `720p`, `1080p`, `4k` | Up to 3 |
+| Veo 3.1 Fast | `veo-3.1-fast` | `720p`, `1080p`, `4k` | Up to 3 |
 
-### Veo 3.1 Official
+### Veo 3.1 Exp
 
 | Variant | `model` | Resolutions | Reference images |
 | --- | --- | --- | --- |
-| Veo 3.1 Official | `veo-3.1-official` | `720p`, `1080p` | Up to 3 |
-| Veo 3.1 Fast Official | `veo-3.1-fast-official` | `720p`, `1080p` | Up to 3 |
+| Veo 3.1 Lite Exp | `veo-3.1-lite-exp` | `720p`, `1080p`, `4k` | Not supported |
+| Veo 3.1 Exp | `veo-3.1-exp` | `720p`, `1080p`, `4k` | Not supported |
+| Veo 3.1 Fast Exp | `veo-3.1-fast-exp` | `720p`, `1080p`, `4k` | Up to 3 |
 
 See the [Veo 3.1 generation guide](/models/video/veo-3.1/generation) for request examples and variant-specific inputs.
 
@@ -55,11 +55,12 @@ The field table below describes the shared request shape. Accepted values depend
 | --- | --- | --- | --- |
 | `prompt` | string | — | **Required.** What the video shows. |
 | `seconds` | integer | Model default | Seedance accepts model-specific ranges. Veo variants currently support only `8`. Omit in Seedance 2.5 edit mode. |
-| `definition` | string | Model default | Output resolution supported by the selected model. Veo defaults to `720p`. |
+| `definition` | string | Model default | Output resolution supported by the selected model. Veo accepts `720p`, `1080p`, or `4k` and defaults to `720p`. |
+| `generateAudio` | boolean | `true` for Veo | Controls whether a Veo output includes generated audio. Omit for Seedance models. For pricing behavior, see the [Veo guide](/models/video/veo-3.1/generation#pricing). |
 | `orientation` | string | Model default | Seedance accepts `21:9`, `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, or `auto`. Veo accepts `16:9` or `9:16`. Omit in Seedance 2.5 frame and edit modes. |
 | `watermark` | boolean | — | Whether to add a watermark. |
 | `seed` | string | — | Seed for more repeatable results. |
-| `referenceImageKeys` | string[] | — | Seedance accepts uploaded reference images. Veo accepts up to 3 only for `veo-3.1-fast`, `veo-3.1-official`, and `veo-3.1-fast-official`. [Upload first](/guides/files), then use the returned `file_id`. |
+| `referenceImageKeys` | string[] | — | Seedance accepts uploaded reference images. Veo accepts up to 3 only for `veo-3.1`, `veo-3.1-fast`, and `veo-3.1-fast-exp`. [Upload first](/guides/files), then use the returned `file_id`. |
 | `referenceVideoKeys` | string[] | — | Seedance only. [Upload first](/guides/files), then use the returned `file_id`. |
 | `referenceAudioKeys` | string[] | — | Seedance only. Limits and visual-reference requirements vary by Seedance model. [Upload first](/guides/files#upload-reference-audio), then use the returned `file_id`. |
 | `firstFrameKey` | string | — | First-frame image; required in frame mode. [Upload first](/guides/files), then use the returned `file_id`. |

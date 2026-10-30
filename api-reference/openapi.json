@@ -809,7 +809,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 128,
-            "description": "Public model ID: seedance-2-mini, seedance-2-fast, seedance-2, seedance-2.5, veo-3.1-lite, veo-3.1, veo-3.1-fast, veo-3.1-official, veo-3.1-fast-official. Only these models are accepted."
+            "description": "Public model ID: seedance-2-mini, seedance-2-fast, seedance-2, seedance-2.5, veo-3.1-lite-exp, veo-3.1, veo-3.1-fast, veo-3.1-exp, veo-3.1-fast-exp. Only these models are accepted."
           },
           "input": {
             "type": "object",
@@ -828,8 +828,12 @@
                 "type": "number"
               },
               "definition": {
-                "description": "Defaults to the selected model's default. Seedance 2 supports 480p/720p/1080p/4k; 2.5 supports 480p/720p/1080p; Mini and Fast support 480p/720p; Veo supports 720p/1080p, and Veo 3.1 Lite also supports 4k.",
+                "description": "Defaults to the selected model's default. Seedance 2 supports 480p/720p/1080p/4k; 2.5 supports 480p/720p/1080p; Mini and Fast support 480p/720p; OpenAPI VEO supports 720p/1080p/4k.",
                 "type": "string"
+              },
+              "generateAudio": {
+                "description": "Whether to generate audio. Defaults to true for VEO models.",
+                "type": "boolean"
               },
               "watermark": {
                 "type": "boolean"
