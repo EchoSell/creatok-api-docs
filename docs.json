@@ -49,12 +49,6 @@
               "guides/concurrency",
               "guides/files"
             ]
-          },
-          {
-            "group": "Video tools",
-            "pages": [
-              "guides/video-cleaning"
-            ]
           }
         ]
       },
@@ -83,6 +77,17 @@
                   "models/video/veo-3.1/generation"
                 ]
               }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Tools",
+        "groups": [
+          {
+            "group": "Video tools",
+            "pages": [
+              "guides/video-cleaning"
             ]
           }
         ]
