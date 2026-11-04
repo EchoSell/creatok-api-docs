@@ -9,6 +9,8 @@ description: "Base URL, authentication, and conventions for every endpoint."
 
 Choose a [video model](/guides/video-models) for scenario examples and model-specific restrictions. All models use the same generation endpoint documented in this reference.
 
+Publish videos and photo sets to TikTok Shop with the [publishing guide](/guides/publishing). Publishing uses its own task endpoints.
+
 ## Base URL
 
 ```text
@@ -29,7 +31,7 @@ Authorization: Bearer cok_...
 - Successful responses return the resource directly with a `2xx` status. Errors use the [error format](/guides/errors).
 - Every response includes an `X-Request-Id` header.
 - Money amounts are decimal USD strings, with six decimal places.
-- Timestamps are ISO 8601 strings in UTC.
+- Generation and cleaning timestamps are ISO 8601 strings in UTC. Publishing task timestamps and `schedule.at` use Unix milliseconds.
 
 ## OpenAPI specification
 

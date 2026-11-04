@@ -87,7 +87,8 @@
           {
             "group": "Video tools",
             "pages": [
-              "guides/video-cleaning"
+              "guides/video-cleaning",
+              "guides/publishing"
             ]
           }
         ]
@@ -130,6 +131,24 @@
             "openapi": "api-reference/openapi.json",
             "pages": [
               "POST /files"
+            ]
+          },
+          {
+            "group": "Publishing",
+            "openapi": "api-reference/openapi.json",
+            "pages": [
+              "POST /publishing/media",
+              "POST /publishing/tasks",
+              "GET /publishing/tasks",
+              "GET /publishing/tasks/by-idempotency-key",
+              "GET /publishing/tasks/{kind}/{task_id}",
+              "POST /publishing/tasks/{kind}/{task_id}/cancel",
+              "GET /publishing/connections",
+              "GET /publishing/connections/{connection_uid}",
+              "GET /publishing/connections/{connection_uid}/capabilities",
+              "GET /publishing/connections/{connection_uid}/products",
+              "GET /publishing/connections/{connection_uid}/music",
+              "GET /publishing/connections/{connection_uid}/photo-destinations"
             ]
           }
         ]

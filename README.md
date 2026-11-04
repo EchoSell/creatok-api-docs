@@ -19,7 +19,7 @@ Use the app's routes, request validators, and services as the source of truth. N
 node scripts/sync-openapi.mjs /path/to/creatok-app
 ```
 
-The app checkout must have its dependencies installed, including `tsx`. The script loads `lib/api-platform/openapi-document.ts` without starting the app or loading credentials. It validates the export before replacing the documentation copy. Inspect the diff after every export.
+The app checkout must have its dependencies installed, including `tsx`. The script exports the specification without starting the app or loading credentials. It validates the export before replacing the documentation copy. Inspect the diff after every export.
 
 After deployment, compare the public `/v1/openapi.json` response with the local export. Do not overwrite the current specification with an older deployment or an HTTP error page.
 
@@ -39,55 +39,4 @@ Open `http://localhost:3000`. Check Quickstart, Files, Video models, Jobs, and t
 
 ## Publishing
 
-Pushing to `main` deploys through the Mintlify GitHub app. On 2026-10-21, the maintainer approved publishing these docs before the production API deployment. The introduction, quickstart, and API overview explicitly label production availability as pending. Keep production readiness separate from test-environment results.
-
-## Capability audit (2026-10-21)
-
-The audit targets app branch `feat/openapi` at `baf21531d`. The local export is OpenAPI `1.1.0` and matches the specification already committed in this repository. No app code was changed.
-
-Reviewed all six route handlers under `app/api/v1`, request contracts, input mapping, submission and billing services, model/media constraints, token pricing, job serialization, listing, and caching. The guides cover signed uploads, all supported reference modes, adaptive editing, token-based USD charges, refunds, idempotency, and workspace concurrency.
-
-Release checks and unresolved items:
-
-- Production `https://api.creatok.ai/v1/openapi.json` returned HTTP `404` in this audit. Production capability parity is unconfirmed. The production URLs in the guides describe the intended release target.
-- The handoff reports test deployment `6cc20da78`, OpenAPI `1.1.0`, and six successful real generation cases: single image, multiple images, video, mixed media, frames, and adaptive editing. These are test-environment results, not production verification. This audit's unauthenticated test-schema request returned HTTP `302`; the earlier result was not independently reproduced.
-- The generated upload endpoint descriptions still name the storage implementation. Fix those descriptions in the app's OpenAPI source in a follow-up, then re-export. Do not patch the generated JSON in this repository.
-- The generated request schema leaves some model-specific restrictions to descriptions and runtime validation, including duration ranges, prompt length, supported resolutions, and media limits. The model guide documents those restrictions; schema validation alone does not prove media acceptance.
-- Before announcing production API availability, confirm production routes, upload and generation flows, job completion/refunds, and console pricing. Compare the production schema, repeat documentation validation, and remove the pending-deployment notices only after verification.
-
-Audit validation completed:
-
-- `mint validate`: passed, including OpenAPI validation.
-- `mint broken-links`: passed with no broken links.
-- Parsed every JSON code block and checked JavaScript and shell syntax. The earlier 47-case generation request audit predated the Seedance audio preflight rule and included a pure-audio example that is now corrected to include an image. Media uploads and paid generation were not repeated.
-- Previewed Quickstart, Files, Video models, Jobs, API overview, and generated generation/upload reference pages in Chrome. Also previewed the Seedance 2 family selection table and Seedance 2.5 adaptive editing section. Checked nested input fields, scenario anchors, navigation, and rendered code blocks. The local preview used port `3001` because `3000` was occupied.
-
-## Reference audio sync (2026-10-22)
-
-Synced the generated schema and guides against app commit `c1ac7786b`. `input.referenceAudioKey` accepts one uploaded audio file for Seedance 2, Fast, and Mini. Seedance 2.5 and frame/audio combinations are rejected. Audio uploads use the existing Files flow and are limited to nonempty `audio/*` files of at most 100 MiB. No audio duration or codec guarantee is inferred from this validation.
-
-The schema still reports version `1.1.0`; compare its contents, not only its version, when verifying deployment. The app checkout contained unrelated uncommitted worker/capacity changes, which were left untouched. This sync does not establish production availability or repeat paid generation tests.
-
-Validation: `mint validate` and `mint broken-links` passed for the previous sync. The updated OpenAPI schema passes `mint validate`, and the updated docs pass `mint broken-links`. The app's pre-commit checks, including lint and TypeScript validation, passed for the validator change.
-
-## Seedance reference audio validation (2026-10-22)
-
-The previous sync incorrectly documented audio-only generation. Seedance 2, Fast, and Mini now reject `referenceAudioKey` unless the request also includes at least one reference image or video. This constraint is model-specific. The API preflight rejects the request before generation submission; audio upload and validation do not guarantee that a request can be generated. The Seedance examples and generated OpenAPI schema use image-plus-audio inputs.
-
-## Video cleaning API sync (2026-10-27)
-
-Added `POST /videos/remove-subtitles` and `POST /videos/remove-watermarks` to the generated OpenAPI schema and the video-cleaning guide. Exported from the app worktree at `e9fa44ac` plus its uncommitted endpoint implementation. The app's implementation note reports a local end-to-end check for each operation; this does not establish production deployment. The API introduction continues to label the production API as pending. The schema version remains `1.1.0`, so compare its paths and fields rather than relying on the version alone.
-
-Removed the exact per-second cleaner price and storage vendor name from the exported OpenAPI descriptions. Pricing links point to the console price page. `mint validate` and `mint broken-links` passed for this sync.
-
-## Veo 3.1 API sync (2026-10-29)
-
-Added the five public Veo 3.1 model IDs to the video model overview, a dedicated generation guide, navigation, and the generated OpenAPI schema. App commit `e69927085` added the Veo family, and later local changes renamed the public IDs. This sync reflects the current app worktree. It does not establish that production accepts these models.
-
-## Veo model ID sync (2026-10-30)
-
-Refreshed the generated OpenAPI schema and Veo docs to match the API contract at local app branch `feat/openapi` commit `4fc86bbae`. Public IDs match the web model names: the Veo 3.1 group uses IDs without a suffix, while Exp variants end in `-exp`. The guide reflects reference-image support for `veo-3.1`, `veo-3.1-fast`, and `veo-3.1-fast-exp`.
-
-## Veo audio and resolution sync (2026-10-30)
-
-The local app branch adds the `input.generateAudio` setting for Veo, defaults it to `true`, and accepts `4k` for all five Veo IDs through the API-specific capability set. Pricing for `veo-3.1` and `veo-3.1-fast` varies with the audio setting; Exp rates do not. The local `feat/openapi` branch is two commits ahead of `origin/feat/openapi` (`032c17cae` and `4fc86bbae`) and has not been verified in production. This docs sync reflects that local branch tip.
+Pushing to `main` deploys through the Mintlify GitHub app. Verify API availability before updating public release notices.

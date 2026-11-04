@@ -59,3 +59,7 @@ Uploaded inputs are temporary. Submit promptly, and keep your originals in your 
 Follow the same grant and multipart upload steps for audio. For an MP3 file, use `content_type: "audio/mpeg"`, the actual byte size, and its filename in `POST /files`. In the Node.js example above, read your audio file and use the same audio MIME type in the request and the `Blob`.
 
 Audio files must be nonempty, use an `audio/*` content type, and be at most 100 MiB. Complete the upload before passing each returned `file_id` in the `input.referenceAudioKeys` array. Do not pass a public URL. The models enforce stricter per-file limits at submission — at most 15 MiB per audio file, with per-model count and duration limits. Seedance 2, Fast, and Mini also require a reference image or video in the same request. See the [Seedance 2 family reference audio example](/models/video/seedance-2/generation#reference-audio) and the [Seedance 2.5 reference audio example](/models/video/seedance-2.5/generation#reference-audio).
+
+## Upload publishing media
+
+Use the same upload flow for [TikTok Shop publishing](/guides/publishing). Pass the returned `file_id` to `POST /publishing/media` for videos and covers, or in `media.file_ids` when submitting a photo set. Publishing accepts file IDs only, not `upload_fields.key` or a URL.

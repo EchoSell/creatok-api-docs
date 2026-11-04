@@ -30,3 +30,7 @@ To submit a new job after a failure, such as a job that failed with `model_busy`
 <Tip>
   Store the idempotency key with your own record before you send the request. Then a crash between sending and saving the job ID cannot create a duplicate job.
 </Tip>
+
+## Publishing submissions
+
+`POST /publishing/tasks` also requires an `Idempotency-Key`. You can recover its original task with `GET /publishing/tasks/by-idempotency-key`. Follow the [publishing recovery flow](/guides/publishing#recover-an-interrupted-submission) when a submission result is uncertain.

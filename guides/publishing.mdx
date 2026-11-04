@@ -1,0 +1,194 @@
+---
+title: "TikTok Shop publishing"
+description: "Prepare media, publish videos and photo sets, and track publishing tasks."
+---
+
+Publish to a TikTok Shop connection that you can access in your workspace. These endpoints support `tiktok_shop_video` and `tiktok_shop_photo`.
+
+## Before you start
+
+- Send your [organization API key](/guides/authentication) in `Authorization: Bearer ...`.
+- The key creator must remain a workspace member with access to the selected TikTok Shop connection.
+- Media preparation and new submissions require an active Plus or higher plan and publishing enabled for your workspace.
+- Video submissions use your API wallet. See [current pricing](https://www.creatok.ai/app/api-platform/pricing). Photo submissions, reads, media preparation, and cancellation are free.
+
+Accepted tasks continue after a plan downgrade. Losing account access or workspace membership can stop an unsent task.
+
+<Note>
+  Publishing returns a task with `task_id` and `kind`. Read it through `/publishing/tasks/{kind}/{task_id}`. The generation and cleaning `/jobs` endpoints do not track publishing tasks.
+</Note>
+
+## Find a connection and product
+
+```bash
+curl https://api.creatok.ai/v1/publishing/connections \
+  -H "Authorization: Bearer $CREATOK_API_KEY"
+```
+
+The response contains a `data` array. Select its `connection_uid`, then inspect the connection and its capabilities:
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| `GET` | `/publishing/connections/{connection_uid}` | Read the selected connection. |
+| `GET` | `/publishing/connections/{connection_uid}/capabilities` | Check available publishing capabilities. |
+| `GET` | `/publishing/connections/{connection_uid}/products` | Find products for this connection. |
+| `GET` | `/publishing/connections/{connection_uid}/music` | Find music by keyword or TikTok music URL. |
+| `GET` | `/publishing/connections/{connection_uid}/photo-destinations` | Find category or collection destinations for photos. |
+
+For products, use `query`, `source=showcase|shop`, and `eligibility=publishable|addable|all`. The default eligibility is `publishable`. `page_size` defaults to 20 and accepts 1–100. `page_token` is a numeric offset. Set `include_total=true` when you need a total.
+
+For music, provide exactly one of `query` or `url`. Keyword searches accept `search_id`, `page_token`, `region`, `language`, and `page_size` (1–50, default 20). URL lookup does not accept search pagination or locale overrides.
+
+For photo destinations, pass `type=category` or `type=collection`. Only collection lookup accepts `page_token`. Query parameters must not be repeated.
+
+## Upload and prepare a video
+
+Follow the [Files upload flow](/guides/files) to upload your video. Complete the multipart upload before preparing it. Publishing accepts the returned `file_id`, not a URL or storage path. To publish a generated video, download its result and upload the file through this flow.
+
+Replace the example file ID and connection UID with your own values:
+
+```bash
+curl https://api.creatok.ai/v1/publishing/media \
+  -H "Authorization: Bearer $CREATOK_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "connection_uid": "YOUR_CONNECTION_UID",
+    "kind": "video",
+    "file_id": "file_00000000-0000-4000-8000-000000000001",
+    "file_name": "product-demo.mp4"
+  }'
+```
+
+The HTTP `200` response contains `id`, `kind`, `connection_uid`, and `status: "prepared"`. Save the `pm_...` ID as `prepared_video_id`. A prepared ID belongs to one workspace, connection, and media kind.
+
+For a custom cover, upload an image and repeat this request with `kind: "cover"`. Save its ID as `prepared_cover_id`. Do not send `cover_uri` in a submission.
+
+## Submit a video
+
+Save a new idempotency key before submitting. Replace the connection UID, prepared media ID, and product ID below with values from the preceding steps.
+
+```bash
+curl https://api.creatok.ai/v1/publishing/tasks \
+  -H "Authorization: Bearer $CREATOK_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: shop-video-20261104-001" \
+  -d '{
+    "kind": "tiktok_shop_video",
+    "connection_uid": "YOUR_CONNECTION_UID",
+    "timezone": "EST",
+    "media": {
+      "prepared_video_id": "pm_00000000-0000-4000-8000-000000000001"
+    },
+    "provider_options": {
+      "product_id": "YOUR_PRODUCT_ID",
+      "product_title": "Everyday bag",
+      "title": "A closer look at our everyday bag",
+      "is_ai_generated": true,
+      "precheck_enabled": true
+    }
+  }'
+```
+
+The HTTP `202` response is the publishing task. Acceptance does not mean the video has been published. Save `kind` and `task_id` for polling.
+
+Use snake_case for all publishing request fields, including nested `provider_options` fields. Unknown options are rejected.
+
+| Video option | Requirement |
+| --- | --- |
+| `product_id` | Required product ID, up to 64 characters. |
+| `product_title` | Required nonempty product link title. The API normalizes it to at most 30 characters. |
+| `product_name` | Optional product name used as a fallback when normalizing the link title. |
+| `title` | Optional caption, up to 4,000 characters. |
+| `description` | Optional description, up to 2,000 characters. |
+| `is_ai_generated` | Optional boolean. Set it to describe your content accurately. |
+| `precheck_enabled` | Optional boolean; defaults to `true`. |
+| `cover_timestamp_ms` | Optional nonnegative frame timestamp. For an uploaded cover, use `media.prepared_cover_id`. |
+| `selected_music` | Optional object or `null`. Include `id`; optional fields are `title`, `author`, `duration`, `cover_url`, and `play_url`. |
+
+`media.prepared_video_id` is required for video. You may also include `media.prepared_cover_id`. Do not include `media.file_ids` for video.
+
+## Submit a photo set
+
+Upload each image through [Files](/guides/files). Submit their file IDs directly; photo sets do not use `/publishing/media`.
+
+Send this body to `POST /publishing/tasks` with a fresh `Idempotency-Key`:
+
+```json
+{
+  "kind": "tiktok_shop_photo",
+  "connection_uid": "YOUR_CONNECTION_UID",
+  "timezone": "EST",
+  "media": {
+    "file_ids": ["file_00000000-0000-4000-8000-000000000002"]
+  },
+  "provider_options": {
+    "post_type": "LINK_TO_PRODUCT",
+    "product_links": [{"product_id": "YOUR_PRODUCT_ID", "link_title": "Everyday bag"}],
+    "title": "Explore the details",
+    "is_ai_generated": true
+  }
+}
+```
+
+You can submit 1–35 images. Do not include prepared video or cover IDs. Photo options accept `title` (up to 5,000 characters), `is_ai_generated`, and `selected_music` in addition to the fields for the selected `post_type`:
+
+| `post_type` | Required options |
+| --- | --- |
+| `LINK_TO_PRODUCT` | `product_links` with 1–15 products. Each item requires `product_id` and may include `link_title` (up to 30 characters). |
+| `LINK_TO_ONE_PIC_ONE_PRODUCT` | One `product_links` item per image, in the same order. At most 15 images. |
+| `LINK_TO_SHOP` | `shop_link` with `group_type`: `MAIN_PAGE`, `CATEGORY_PAGE`, or `COLLECTION_PAGE`. |
+
+For category and collection links, include `shop_link.group_id` from destination discovery. Omit it for `MAIN_PAGE`. Only collection links accept `shop_link.page_token`.
+
+## Schedule publishing
+
+`timezone` is required even for immediate submissions. Use an enum value from the API reference, such as `EST` or `GMT+8`.
+
+Omit `schedule` to submit immediately. For a scheduled submission, set `schedule.at` to a future Unix timestamp in **milliseconds**. It must be at least 60 seconds in the future and no more than 30 days in the future. Compute it when you submit; do not reuse an old timestamp.
+
+## Track and cancel tasks
+
+```bash
+curl "https://api.creatok.ai/v1/publishing/tasks/tiktok_shop_video/$TASK_ID" \
+  -H "Authorization: Bearer $CREATOK_API_KEY"
+```
+
+| `status` | Meaning |
+| --- | --- |
+| `queued` | Waiting for processing. |
+| `scheduled` | Waiting for its scheduled time. |
+| `running` | Processing or publishing. |
+| `succeeded` | Published. Read `result.content_ids` and `result.content_urls`. |
+| `failed` | A confirmed failure. Read `error`. |
+| `unknown` | The publication result is unconfirmed. Do not automatically resubmit. |
+| `canceled` | Canceled before publication. |
+
+Follow `Retry-After` when present. The API suggests 10 seconds for `queued`, `scheduled`, `running`, and `unknown` tasks. Task timestamps (`created_at`, `schedule_time`, and `completed_at`) use Unix milliseconds; the latter two may be `null`. `publish_job_id` may be `null` for older tasks.
+
+List tasks with `GET /publishing/tasks?kind=tiktok_shop_video`. `kind` is required. Optional filters include `connection_uid`, `client_source`, `status`, `created_after_ms`, and `created_before_ms`. Pagination uses `page` (default 1) and `page_size` (1–100, default 20). The response contains `data`, `page`, `page_size`, `total`, and `has_more`.
+
+Lists include authorized tasks across creation sources. Set `client_source=openapi` to select API-created tasks. Use `client_source=unknown` for tasks without a recorded source.
+
+Cancel an eligible unsent task with `POST /publishing/tasks/{kind}/{task_id}/cancel`. No body is required. A task that can no longer be canceled returns `409` with `task_not_cancellable`. Cancellation cannot remove an already published post.
+
+`cost.amount_usd` and `cost.refunded_usd` show booked wallet transactions as six-decimal USD strings. Confirmed failures and eligible cancellations refund the original charge. An `unknown` outcome does not trigger an automatic resend or refund.
+
+## Recover an interrupted submission
+
+Publishing idempotency keys are scoped to your workspace across organization API keys. Repeating the same key and body returns the current original task with HTTP `202`, including failed tasks. Reusing a key with a different body returns `409` with `idempotency_key_reused`.
+
+If submission times out or the result cannot be read, recover with the original key:
+
+```bash
+curl https://api.creatok.ai/v1/publishing/tasks/by-idempotency-key \
+  -H "Authorization: Bearer $CREATOK_API_KEY" \
+  -H "Idempotency-Key: shop-video-20261104-001"
+```
+
+Keep the original request body. If you retry submission, use that body and the same key. Do not switch to a new key to resolve an uncertain result. Recovery returns `task_not_found` when it cannot find the attempt, or `result_unavailable` when an accepted attempt cannot currently be read.
+
+## Rate limits and errors
+
+Publishing defaults to 120 read requests and 30 write requests per minute per workspace. Workspace-specific limits can differ. On `429`, follow `Retry-After` before retrying.
+
+Errors use the standard [error format](/guides/errors). Common codes include `plan_required`, `permission_denied`, `connection_not_found`, `capability_disabled`, `invalid_media_reference`, `invalid_parameter`, and `publishing_rejected`. A `503` with `service_unavailable` indicates temporary admission unavailability; follow its `Retry-After` header.
