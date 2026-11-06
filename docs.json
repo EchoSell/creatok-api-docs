@@ -85,7 +85,7 @@
         "tab": "Tools",
         "groups": [
           {
-            "group": "Video tools",
+            "group": "Tools",
             "pages": [
               "guides/video-cleaning",
               "guides/publishing"
