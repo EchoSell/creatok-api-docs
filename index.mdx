@@ -1,13 +1,13 @@
 ---
 title: "Introduction"
-description: "Generate AI videos from your own backend with the CreatOK API."
+description: "Generate AI images and videos from your own backend with the CreatOK API."
 ---
 
 <Note>
   These docs describe the upcoming API release. The production API deployment is pending. The production URLs below are the intended endpoints for that release.
 </Note>
 
-The CreatOK API lets your server generate videos with Seedance models. You submit a generation request, receive a job, and poll the job until the video is ready to download.
+The CreatOK API lets your server generate images and videos. You submit a generation request, receive a job, and poll the job until the result is ready to download.
 
 ```text
 https://api.creatok.ai/v1
@@ -16,9 +16,9 @@ https://api.creatok.ai/v1
 ## How it works
 
 1. Create an organization API key in the [API console](https://www.creatok.ai/app/api-platform/api-keys).
-2. Submit `POST /videos/generation` with a model, an input, and an `Idempotency-Key`.
+2. Submit `POST /images/generation` or `POST /videos/generation` with a model, an input, and an `Idempotency-Key`.
 3. Poll `GET /jobs/{jobId}` until the job reaches a final status.
-4. Download the video from `output.files` within 48 hours.
+4. Download the result from `output.files` within 48 hours.
 
 Every job is charged in USD from your workspace's API wallet when it is accepted. Failed jobs are refunded automatically.
 
@@ -26,8 +26,8 @@ Every job is charged in USD from your workspace's API wallet when it is accepted
   <Card title="Quickstart" icon="rocket" href="/quickstart">
     Generate your first video in a few minutes.
   </Card>
-  <Card title="Models" icon="film" href="/guides/video-models">
-    Supported models, input fields, and how pricing works.
+  <Card title="Image generation" icon="image" href="/models/image/gpt-image-2/generation">
+    Generate an image with GPT Image 2.
   </Card>
   <Card title="Jobs and polling" icon="clock" href="/guides/jobs">
     Job statuses, polling, and output retention.

@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "CreatOK API",
-  "description": "Generate AI videos with Seedance models through the CreatOK API.",
+  "description": "Generate AI images and videos through the CreatOK API.",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
@@ -55,6 +55,12 @@
       {
         "tab": "Models",
         "groups": [
+          {
+            "group": "Image",
+            "pages": [
+              "models/image/gpt-image-2/generation"
+            ]
+          },
           {
             "group": "Video",
             "pages": [
@@ -109,6 +115,13 @@
               "POST /videos/generation",
               "POST /videos/remove-subtitles",
               "POST /videos/remove-watermarks"
+            ]
+          },
+          {
+            "group": "Images",
+            "openapi": "api-reference/openapi.json",
+            "pages": [
+              "POST /images/generation"
             ]
           },
           {

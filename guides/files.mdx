@@ -1,9 +1,9 @@
 ---
 title: "Files"
-description: "Upload reference media or source videos before submitting a video job."
+description: "Upload reference media or source videos before submitting a job."
 ---
 
-Use this flow before sending reference media to generation or a source video to a video-cleaning job:
+Use this flow before sending reference media to image or video generation, or a source video to a video-cleaning job:
 
 1. Call `POST /files` for each file to receive an upload grant and `file_id`.
 2. Send the file bytes to `upload_url` with every returned `upload_fields` entry as multipart form data.
@@ -48,9 +48,9 @@ if (!upload.ok) throw new Error(await upload.text());
 console.log(grant.file_id); // Use in referenceImageKeys or firstFrameKey.
 ```
 
-The signed grant expires after six hours. Image uploads are limited to 10 MiB; other uploads to 100 MiB. The storage service rejects uploads exceeding the signed limit. Model-specific restrictions can be stricter; see [Video models](/guides/video-models).
+The signed grant expires after six hours. Image uploads are limited to 10 MiB; other uploads to 100 MiB. The storage service rejects uploads exceeding the signed limit. Model-specific restrictions can be stricter; see [GPT Image 2](/models/image/gpt-image-2/generation) or [Video models](/guides/video-models).
 
-Wait for a successful upload before submitting a job. Use the returned `file_id` or `upload_fields.key`; both refer to the same uploaded object and are scoped to your workspace. Video references go in `referenceVideoKeys`; audio references go in `referenceAudioKeys`. For video cleaning, pass the uploaded source video as `input.video`. The cleaner accepts videos up to 50 MiB, even though the file upload grant allows up to 100 MiB for video files. Check [video cleaning](/guides/video-cleaning) for accepted formats and duration.
+Wait for a successful upload before submitting a job. Use the returned `file_id` or `upload_fields.key`; both refer to the same uploaded object and are scoped to your workspace. Image references go in `referenceImageKeys`; video references go in `referenceVideoKeys`; audio references go in `referenceAudioKeys`. For video cleaning, pass the uploaded source video as `input.video`. The cleaner accepts videos up to 50 MiB, even though the file upload grant allows up to 100 MiB for video files. Check [video cleaning](/guides/video-cleaning) for accepted formats and duration.
 
 Uploaded inputs are temporary. Submit promptly, and keep your originals in your own storage. An expired grant requires a new grant and upload. An accepted job retains its own copy of reference inputs.
 
