@@ -76,12 +76,6 @@
                 "pages": [
                   "models/video/seedance-2.5/generation"
                 ]
-              },
-              {
-                "group": "Veo 3.1",
-                "pages": [
-                  "models/video/veo-3.1/generation"
-                ]
               }
             ]
           }

@@ -1,9 +1,9 @@
 ---
 title: "Video models"
-description: "Supported Seedance and Veo models, input fields, limits, and pricing guidance."
+description: "Supported Seedance models, input fields, limits, and pricing guidance."
 ---
 
-Select a public model ID with the `model` field of `POST /videos/generation`. The Seedance and Veo families have different inputs and limits. All models support text prompts and first/end frames. Seedance models support reference videos and audio. Veo models do not support reference videos or reference audio; only some variants accept reference images. Veo models support generated audio, which you can control with `generateAudio`.
+Select a public model ID with the `model` field of `POST /videos/generation`. Models support text prompts, first/end frames, reference images, videos, and audio. Input limits vary by model.
 
 ## Models
 
@@ -14,27 +14,6 @@ Select a public model ID with the `model` field of `POST /videos/generation`. Th
 | `seedance-2-fast` | `480p`, `720p` | 4–15 |
 | `seedance-2-mini` | `480p`, `720p` | 4–15 |
 
-## Veo 3.1 models
-
-All Veo variants currently generate 8-second videos. They support `720p`, `1080p`, and `4k`. Their supported orientations are `9:16` and `16:9`, with `9:16` as the default.
-
-### Veo 3.1
-
-| Variant | `model` | Resolutions | Reference images |
-| --- | --- | --- | --- |
-| Veo 3.1 | `veo-3.1` | `720p`, `1080p`, `4k` | Up to 3 |
-| Veo 3.1 Fast | `veo-3.1-fast` | `720p`, `1080p`, `4k` | Up to 3 |
-
-### Veo 3.1 Exp
-
-| Variant | `model` | Resolutions | Reference images |
-| --- | --- | --- | --- |
-| Veo 3.1 Lite Exp | `veo-3.1-lite-exp` | `720p`, `1080p`, `4k` | Not supported |
-| Veo 3.1 Exp | `veo-3.1-exp` | `720p`, `1080p`, `4k` | Not supported |
-| Veo 3.1 Fast Exp | `veo-3.1-fast-exp` | `720p`, `1080p`, `4k` | Up to 3 |
-
-See the [Veo 3.1 generation guide](/models/video/veo-3.1/generation) for request examples and variant-specific inputs.
-
 <CardGroup cols={2}>
   <Card title="Seedance 2" href="/models/video/seedance-2/generation">
     Seedance 2, Fast, and Mini: choose a variant and follow shared scenario examples.
@@ -42,30 +21,26 @@ See the [Veo 3.1 generation guide](/models/video/veo-3.1/generation) for request
   <Card title="Seedance 2.5" href="/models/video/seedance-2.5/generation">
     Reference generation, frames, and adaptive video editing with Seedance 2.5.
   </Card>
-  <Card title="Veo 3.1" href="/models/video/veo-3.1/generation">
-    Veo variants, supported inputs, and 8-second generation examples.
-  </Card>
 </CardGroup>
 
 ## Input fields
 
-The field table below describes the shared request shape. Accepted values depend on the model. Use the model tables above and the Seedance or [Veo guide](/models/video/veo-3.1/generation) for the supported choices.
+The field table below describes the shared request shape. Accepted values depend on the model. Use the model table above and the individual model guides for supported choices.
 
 | Field | Type | Default | Description |
 | --- | --- | --- | --- |
 | `prompt` | string | — | **Required.** What the video shows. |
-| `seconds` | integer | Model default | Seedance accepts model-specific ranges. Veo variants currently support only `8`. Omit in Seedance 2.5 edit mode. |
-| `definition` | string | Model default | Output resolution supported by the selected model. Veo accepts `720p`, `1080p`, or `4k` and defaults to `720p`. |
-| `generateAudio` | boolean | `true` for Veo | Controls whether a Veo output includes generated audio. Omit for Seedance models. For pricing behavior, see the [Veo guide](/models/video/veo-3.1/generation#pricing). |
-| `orientation` | string | Model default | Seedance accepts `21:9`, `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, or `auto`. Veo accepts `16:9` or `9:16`. Omit in Seedance 2.5 frame and edit modes. |
+| `seconds` | integer | Model default | Seedance accepts model-specific ranges. Omit in Seedance 2.5 edit mode. |
+| `definition` | string | Model default | Output resolution supported by the selected model. |
+| `orientation` | string | Model default | Seedance accepts `21:9`, `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, or `auto`. Omit in Seedance 2.5 frame and edit modes. |
 | `watermark` | boolean | — | Whether to add a watermark. |
 | `seed` | string | — | Seed for more repeatable results. |
-| `referenceImageKeys` | string[] | — | Seedance accepts uploaded reference images. Veo accepts up to 3 only for `veo-3.1`, `veo-3.1-fast`, and `veo-3.1-fast-exp`. [Upload first](/guides/files), then use the returned `file_id`. |
-| `referenceVideoKeys` | string[] | — | Seedance only. [Upload first](/guides/files), then use the returned `file_id`. |
-| `referenceAudioKeys` | string[] | — | Seedance only. Limits and visual-reference requirements vary by Seedance model. [Upload first](/guides/files#upload-reference-audio), then use the returned `file_id`. |
+| `referenceImageKeys` | string[] | — | [Upload reference images](/guides/files), then use the returned `file_id`. |
+| `referenceVideoKeys` | string[] | — | [Upload first](/guides/files), then use the returned `file_id`. |
+| `referenceAudioKeys` | string[] | — | Limits and visual-reference requirements vary by Seedance model. [Upload first](/guides/files#upload-reference-audio), then use the returned `file_id`. |
 | `firstFrameKey` | string | — | First-frame image; required in frame mode. [Upload first](/guides/files), then use the returned `file_id`. |
 | `endFrameKey` | string | — | Optional end-frame image; requires a first frame. [Upload first](/guides/files), then use the returned `file_id`. |
-| `generationMode` | string | inferred | `reference` or `frame` for Veo. Seedance 2.5 also supports `edit`. |
+| `generationMode` | string | inferred | `reference` or `frame`; Seedance 2.5 also supports `edit`. |
 | `autoMatchVideoDuration` | boolean | `true` in edit mode | Only supported for Seedance 2.5 edit mode. |
 
 Media fields accept the `file_id` or `upload_fields.key` from [Files](/guides/files), after upload completes. They do not accept arbitrary URLs or files from another workspace. Prompts are limited to 8,000 characters.
@@ -159,7 +134,7 @@ For Seedance 2 family image/audio and mixed image/video/audio requests, see the 
 
 ## Seedance media limits
 
-The limits in this section apply to Seedance. The upload limit and model limit both apply. Images are capped at **10 MiB** by the upload grant, including for Seedance 2.5. Videos are capped at **100 MiB** by the upload grant, and **50 MiB** for Seedance 2 / Mini / Fast at generation submission. Veo image inputs use the same 10 MiB upload limit; see the [Veo guide](/models/video/veo-3.1/generation) for its model-specific image support.
+The limits in this section apply to Seedance. The upload limit and model limit both apply. Images are capped at **10 MiB** by the upload grant, including for Seedance 2.5. Videos are capped at **100 MiB** by the upload grant, and **50 MiB** for Seedance 2 / Mini / Fast at generation submission.
 
 | Constraint | Seedance 2 / Mini / Fast | Seedance 2.5 |
 | --- | --- | --- |
@@ -176,8 +151,6 @@ Reference audio accepts WAV or MP3. The upload grant allows up to 100 MiB per fi
 Images must be 300–6000 pixels per side. Images and videos must have an aspect ratio between 0.4 and 2.5. Videos use MP4 or MOV. Images use JPEG, PNG, or WebP; Seedance 2.5 also accepts BMP, TIFF, GIF, HEIC, and HEIF. The server validates actual media metadata before charging; an upload grant alone does not guarantee the model can use the file.
 
 ## Pricing
-
-The details below describe Seedance pricing. Veo pricing depends on the selected variant and resolution; see the [Veo guide](/models/video/veo-3.1/generation#pricing) and [pricing page](https://www.creatok.ai/app/api-platform/pricing).
 
 You pay for estimated token usage, using the model's USD unit price per million tokens:
 
