@@ -58,7 +58,9 @@
           {
             "group": "Image",
             "pages": [
-              "models/image/gpt-image-2/generation"
+              "models/image/gpt-image-2/generation",
+              "models/image/gpt-image-2.6/generation",
+              "models/image/seedream-5.5/generation"
             ]
           },
           {

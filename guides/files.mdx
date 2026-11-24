@@ -48,7 +48,7 @@ if (!upload.ok) throw new Error(await upload.text());
 console.log(grant.file_id); // Use in referenceImageKeys or firstFrameKey.
 ```
 
-The signed grant expires after six hours. Image uploads are limited to 10 MiB; other uploads to 100 MiB. The storage service rejects uploads exceeding the signed limit. Model-specific restrictions can be stricter; see [GPT Image 2](/models/image/gpt-image-2/generation) or [Video models](/guides/video-models).
+The signed grant expires after six hours. The limit is 10 MiB for images and 100 MiB for other uploads. Check the model guide for additional requirements. [GPT Image 2](/models/image/gpt-image-2/generation) · [GPT Image 2.6](/models/image/gpt-image-2.6/generation) · [Seedream 5.5](/models/image/seedream-5.5/generation) · [Video models](/guides/video-models)
 
 Wait for a successful upload before submitting a job. Use the returned `file_id` or `upload_fields.key`; both refer to the same uploaded object and are scoped to your workspace. Image references go in `referenceImageKeys`; video references go in `referenceVideoKeys`; audio references go in `referenceAudioKeys`. For video cleaning, pass the uploaded source video as `input.video`. The cleaner accepts videos up to 50 MiB, even though the file upload grant allows up to 100 MiB for video files. Check [video cleaning](/guides/video-cleaning) for accepted formats and duration.
 

@@ -7,7 +7,7 @@ Public developer documentation for the CreatOK API, built with [Mintlify](https:
 - `docs.json`: site configuration and navigation
 - `index.mdx`, `quickstart.mdx`: getting started
 - `guides/`: authentication, files, jobs, idempotency, errors, concurrency, and model comparison
-- `models/image/`: GPT Image 2 generation guide
+- `models/image/`: GPT Image 2, GPT Image 2.6 Flare and Sunburst, and Seedream 5.5 generation guides
 - `models/video/`: Seedance model generation guides
 - `api-reference/openapi.json`: generated OpenAPI 3.1 specification
 - `scripts/sync-openapi.mjs`: export the specification from an app checkout

@@ -32,17 +32,20 @@ The API responds with HTTP `202` and a job. Read its `id` and `status`, then [po
 
 | Field | Values | Default |
 | --- | --- | --- |
-| `input.prompt` | 1–5,000 characters after trimming | Required |
+| `input.prompt` | 1–5,000 Unicode code points after trimming | Required |
 | `input.resolution` | `1K`, `2K`, `4K` | `2K` |
 | `input.quality` | `low`, `medium`, `high` | `low` |
 | `input.aspectRatio` | `auto`, `1:1`, `16:9`, `9:16`, `4:3`, `3:4`, `3:2`, `2:3`, `5:4`, `4:5`, `2:1`, `1:2`, `21:9`, `9:21` | `1:1` |
 | `input.referenceImageKeys` | Up to 16 uploaded images | Empty array |
+| `input.customSize` | An object with integer `width` and `height` in pixels | Optional |
 
 Unknown fields at the request root or inside `input` return `400 invalid_parameter`. The request supports optional `metadata` and `max_cost_usd` fields.
 
 ## Generate with reference images
 
 [Upload each image](/guides/files) before submitting the job. Pass its `file_id` or `upload_fields.key` in `referenceImageKeys`. Each reference must belong to your workspace, have an `image/*` content type, and be nonempty and no larger than 10 MiB. Do not send a public URL or base64 data.
+
+GPT Image 2 rejects GIF reference images. Use JPG, PNG, or WebP.
 
 ```json
 {
@@ -56,9 +59,31 @@ Unknown fields at the request root or inside `input` return `400 invalid_paramet
 }
 ```
 
+## Custom size
+
+Use `customSize` for exact dimensions and omit `resolution` and `aspectRatio`. Each side must be a multiple of 16 and at most 3,840 px. The image must have 655,360–8,294,400 total pixels and a long-to-short side ratio of at most 3:1.
+
+```json
+{
+  "model": "gpt-image-2",
+  "input": {
+    "prompt": "A product photograph of a ceramic mug",
+    "customSize": { "width": 1040, "height": 1040 }
+  }
+}
+```
+
 ## Cost and retries
 
-Check the current image rates on the [pricing page](https://www.creatok.ai/app/api-platform/pricing). The charge depends on `resolution`, `quality`, and the number of reference images. `cost.amount_usd` on the returned job shows the charge.
+The charge depends on the output tier, quality, and number of reference images. Each entry in `referenceImageKeys` is billed, including repeated references to the same image. A fixed-size request uses its `resolution`. A custom-size request uses the shorter side of `customSize`.
+
+| Shorter side | Output tier |
+| --- | --- |
+| Up to 1,024 px | 1K |
+| Over 1,024 px and up to 2,048 px | 2K |
+| Over 2,048 px | 4K |
+
+The job's `cost.amount_usd` shows the charge. [Current API pricing](https://www.creatok.ai/app/api-platform/pricing)
 
 Set `max_cost_usd` to a decimal USD string with up to six decimal places to cap the charge. A quote above your cap returns `400 max_cost_exceeded` before charging. A failed or canceled job receives a refund, reported in `cost.refunded_usd`.
 
